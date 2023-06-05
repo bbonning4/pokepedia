@@ -11,7 +11,7 @@ import requests
 # Create your views here.
 def home(request):
     error_msg = ""
-    return render(request, 'home.html', {'error_msg':error_msg})
+    return render(request, 'home.html', {'error_msg': error_msg})
 
 def signup(request):
     error_message = ''
@@ -22,6 +22,7 @@ def signup(request):
         if form.is_valid():
             # This will add the user to the database
             user = form.save()
+
             # This is how we log a user in via code
             login(request, user)
             return redirect('/')
