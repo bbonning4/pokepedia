@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <!--Our CSS-->
@@ -22,6 +24,16 @@
                     <li><a href="{% url 'home' %}" class="left brand-logo black-text">PokePedia</a></li>
                 </ul>               
                 <ul class="right">
+                    <li>
+                        <div class="nav-wrapper">
+                            <form method="GET" action="{% url 'search' %}">
+                                <div class="input-field">
+                                  <input id="search" type="search" name="pokemon_name" required>
+                                  <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
                     {% if user.is_authenticated %}
                         <li><a href="" class="black-text">Example</a></li>
                         <li><a href="{% url 'logout' %}" class="black-text">Log Out</a></li>
