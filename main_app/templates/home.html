@@ -2,4 +2,12 @@
 
 {% block content %}
 <h1>Welcome</h1>
+<form method="GET" action="{% url 'search' %}">
+    <div class="input-field">
+      <input id="search" type="search" name="pokemon_name" required>
+      <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+      <i class="material-icons">close</i>
+    </div>
+</form>
+<p class="red-text">{{ error_msg }}</p>
 {% endblock %}
