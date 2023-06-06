@@ -36,6 +36,7 @@
                     </li>
                     {% if user.is_authenticated %}
                         <li><a href="" class="black-text">Example</a></li>
+                        <li><a href="{% url 'favorites' %}" class="black-text">Favorites</a></li>
                         <li><a href="{% url 'logout' %}" class="black-text">Log Out</a></li>
                     {% else %}
                         <li><a href="{% url 'signup' %}" class="black-text">Sign Up</a></li>

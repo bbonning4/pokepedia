@@ -5,7 +5,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Profile
+from .models import Profile, Favorite
 import requests
 
 # Create your views here.
@@ -22,7 +22,8 @@ def signup(request):
         if form.is_valid():
             # This will add the user to the database
             user = form.save()
-
+            profile = Profile(user=request.user)
+            profile.save()
             # This is how we log a user in via code
             login(request, user)
             return redirect('/')
@@ -45,3 +46,15 @@ def search(request):
         error_msg = "No Results"
         return render(request, 'home.html', {"error_msg": error_msg})
     return render(request, 'pokemon/detail.html', {'name': name, 'image': image})    
+
+def favorites(request):
+    profile_id = Profile.objects.get(user_id=request.user.id).id
+    favorites = Favorite.objects.filter(profile_id=profile_id)
+    return render(request, 'pokemon/favorites.html', {'favorites': favorites})
+
+def add_favorite(request):
+    profile = Profile.objects.get(user_id=request.user.id)
+    favorite = Favorite.objects.create(name=request.POST.get('name'), image=request.POST.get('image'), profile=profile)
+    # Redirects to current page
+    return redirect(request.META['HTTP_REFERER'])
+

@@ -3,4 +3,11 @@
 {% block content %}
 <h1>{{ name }}</h1>
 <img src="{{ image }}" alt="Image of {{ name }}">
+<!-- Add Favorites -->
+<form action="{% url 'add_favorite' %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="name" value="{{ name }}">
+    <input type="hidden" name="image" value="{{ image }}">
+    <input type="submit" value="Favorite" class="btn">
+</form>
 {% endblock %}
