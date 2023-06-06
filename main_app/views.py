@@ -62,7 +62,7 @@ def search(request):
 def favorites_index(request):
     profile_id = Profile.objects.get(user_id=request.user.id).id
     favorites = Favorite.objects.filter(profile_id=profile_id)
-    return render(request, 'pokemon/favorites.html', {'favorites': favorites})
+    return render(request, 'pokemon/favorites.html', {'favorites': favorites, 'profile_id': profile_id})
 
 def add_favorite(request):
     profile = Profile.objects.get(user_id=request.user.id)
@@ -97,11 +97,13 @@ def update_shiny(request):
     pokemon_name = POKEMON[request.POST.get('name')]
     url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name}"
     response = requests.get(url)
-    if response.status_code == 200:
+    if favorite.is_shiny == True:
         json = response.json()
         shiny_image = json["sprites"]["other"]["official-artwork"]["front_shiny"]
         favorite.image = shiny_image
     else:
-        pass    
+        json = response.json()
+        not_shiny_image = json["sprites"]["other"]["official-artwork"]["front_default"]
+        favorite.image = not_shiny_image     
     favorite.save()
     return redirect(request.META['HTTP_REFERER'])
