@@ -38,13 +38,17 @@ def signup(request):
 def search(request):
     profile_id = Profile.objects.get(user_id=request.user.id).id
     favorites = Favorite.objects.filter(profile_id=profile_id)
+    pokemon_search = request.GET.get('pokemon_name')
+    for key in POKEMON:
+        if key.lower() == pokemon_search.lower():
+            pokemon_name = POKEMON[key]
+            name = key
 
-    pokemon_name = request.GET.get('pokemon_name')
-    url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name.lower()}"
+    url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name}"
     response = requests.get(url)
     if response.status_code == 200:
         json = response.json()
-        name = json["name"].capitalize()
+        # name = json["name"].capitalize()
         image = json["sprites"]["other"]["official-artwork"]["front_default"]
     else:
         error_msg = "No Results"
@@ -81,8 +85,23 @@ def show_favorite(request, profile_id, favorite_id):
     # check if logged in user is the user for the profile_id being accessed
     profile = get_object_or_404(Profile, id=profile_id)
     if profile.user != request.user:
-        print("hello")
         return redirect('/')
     # is_logged_in = user.is_active and user.is_authenticated
-    # print(user)
     return render(request, 'pokemon/show.html', {'favorite': favorite})
+
+def update_shiny(request):
+    profile = Profile.objects.get(user_id=request.user.id)
+    favorite = Favorite.objects.get(name=request.POST.get('name'), profile=profile)
+    favorite.is_shiny = not favorite.is_shiny
+    
+    pokemon_name = POKEMON[request.POST.get('name')]
+    url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        json = response.json()
+        shiny_image = json["sprites"]["other"]["official-artwork"]["front_shiny"]
+        favorite.image = shiny_image
+    else:
+        pass    
+    favorite.save()
+    return redirect(request.META['HTTP_REFERER'])
