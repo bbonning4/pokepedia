@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Profile, Favorite
+from .utils import POKEMON
 import requests
 
 # Create your views here.
@@ -35,6 +36,9 @@ def signup(request):
     return render(request, 'registration/signup.html', context)  
 
 def search(request):
+    profile_id = Profile.objects.get(user_id=request.user.id).id
+    favorites = Favorite.objects.filter(profile_id=profile_id)
+
     pokemon_name = request.GET.get('pokemon_name')
     url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name.lower()}"
     response = requests.get(url)
@@ -45,9 +49,13 @@ def search(request):
     else:
         error_msg = "No Results"
         return render(request, 'home.html', {"error_msg": error_msg})
-    return render(request, 'pokemon/detail.html', {'name': name, 'image': image})    
+    context = {
+        'name': name,
+        'is_favorite': any(name == favorite.name for favorite in favorites)
+    }
+    return render(request, 'pokemon/detail.html', {'name': name, 'image': image, 'context': context})    
 
-def favorites(request):
+def favorites_index(request):
     profile_id = Profile.objects.get(user_id=request.user.id).id
     favorites = Favorite.objects.filter(profile_id=profile_id)
     return render(request, 'pokemon/favorites.html', {'favorites': favorites})
@@ -55,6 +63,13 @@ def favorites(request):
 def add_favorite(request):
     profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.create(name=request.POST.get('name'), image=request.POST.get('image'), profile=profile)
+    # Redirects to current page
+    return redirect(request.META['HTTP_REFERER'])
+
+def remove_favorite(request):
+    profile = Profile.objects.get(user_id=request.user.id)
+    favorite = Favorite.objects.get(name=request.POST.get('name'), profile=profile)
+    favorite.delete()
     # Redirects to current page
     return redirect(request.META['HTTP_REFERER'])
 
