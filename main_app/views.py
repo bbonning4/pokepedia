@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Profile, Favorite
+from .utils import POKEMON
 import requests
 
 # Create your views here.
@@ -47,7 +48,7 @@ def search(request):
         return render(request, 'home.html', {"error_msg": error_msg})
     return render(request, 'pokemon/detail.html', {'name': name, 'image': image})    
 
-def favorites(request):
+def favorites_index(request):
     profile_id = Profile.objects.get(user_id=request.user.id).id
     favorites = Favorite.objects.filter(profile_id=profile_id)
     return render(request, 'pokemon/favorites.html', {'favorites': favorites})
