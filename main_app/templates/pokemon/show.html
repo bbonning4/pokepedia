@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ favorite.name }}</h1>
+<img src="{{ favorite.image }}" alt="Image of {{ favorite.name }}">
+
+<form action="{% url 'remove_favorite' %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="show_page" value="true">
+    <input type="hidden" name="name" value="{{ favorite.name }}">
+    <input type="hidden" name="image" value="{{ favorite.image }}">
+    <input type="submit" value="Remove Favorite" class="btn">
+</form>
+
+{% endblock %}

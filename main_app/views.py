@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
 from django.contrib.auth import login
@@ -70,6 +70,19 @@ def remove_favorite(request):
     profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.get(name=request.POST.get('name'), profile=profile)
     favorite.delete()
+    if request.POST.get('show_page') == "true":
+        return redirect('favorites')
     # Redirects to current page
     return redirect(request.META['HTTP_REFERER'])
 
+@login_required
+def show_favorite(request, profile_id, favorite_id):
+    favorite = Favorite.objects.get(id=favorite_id)
+    # check if logged in user is the user for the profile_id being accessed
+    profile = get_object_or_404(Profile, id=profile_id)
+    if profile.user != request.user:
+        print("hello")
+        return redirect('/')
+    # is_logged_in = user.is_active and user.is_authenticated
+    # print(user)
+    return render(request, 'pokemon/show.html', {'favorite': favorite})
