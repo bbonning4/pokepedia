@@ -10,6 +10,12 @@
             <div class="card-content">
                 <img src="{{ pokemon.image }}" alt="Image of {{ pokemon.name }}">
                 <span class="card-title">{{ pokemon.name }}</span>
+                <form action="{% url 'remove_favorite' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="name" value="{{ pokemon.name }}">
+                    <input type="hidden" name="image" value="{{ pokemon.image }}">
+                    <input type="submit" value="Remove Favorite" class="btn">
+                </form>
             </div>
         </div>
     </a>
