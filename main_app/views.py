@@ -61,17 +61,20 @@ def search(request):
     }
     return render(request, 'pokemon/detail.html', {'name': name, 'image': image, 'context': context})    
 
+@login_required
 def favorites_index(request):
     profile_id = Profile.objects.get(user_id=request.user.id).id
     favorites = Favorite.objects.filter(profile_id=profile_id)
     return render(request, 'pokemon/favorites.html', {'favorites': favorites, 'profile_id': profile_id})
 
+@login_required
 def add_favorite(request):
     profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.create(name=request.POST.get('name'), image=request.POST.get('image'), profile=profile)
     # Redirects to current page
     return redirect(request.META['HTTP_REFERER'])
 
+@login_required
 def remove_favorite(request):
     profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.get(name=request.POST.get('name'), profile=profile)
@@ -91,6 +94,7 @@ def show_favorite(request, profile_id, favorite_id):
     # is_logged_in = user.is_active and user.is_authenticated
     return render(request, 'pokemon/show.html', {'favorite': favorite})
 
+@login_required
 def update_shiny(request):
     profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.get(name=request.POST.get('name'), profile=profile)
@@ -110,21 +114,21 @@ def update_shiny(request):
     favorite.save()
     return redirect(request.META['HTTP_REFERER'])
 
-def find_products(request):
-    url = f"https://www.google.com/search?q=slowpoke+pokemon&tbm=shop"
+def find_products(request, name):
+    url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
     image_tags = soup.find_all('img')
     image_urls = [img['src'] for img in image_tags[1:]]
-    return render(request, 'pokemon/products.html', {'image_urls': image_urls})
+    return render(request, 'pokemon/products.html', {'image_urls': image_urls, 'name': name})
 
-def find_more_products(request):
+def find_more_products(request, name):
     image_urls = []
     while len(image_urls) < 20:
         random_page = random.randint(0, 500)
-        url = f"https://www.google.com/search?q=slowpoke+pokemon&tbm=shop&start={random_page}"
+        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
         image_tags = soup.find_all('img')
         image_urls = [img['src'] for img in image_tags[1:]]
-    return render(request, 'pokemon/products.html', {'image_urls': image_urls})
+    return render(request, 'pokemon/products.html', {'image_urls': image_urls, 'name': name})
