@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="{% url 'more_products' name %}" method="GET">
+    <!-- {% csrf_token %} -->
+    <input type="submit" value="More Stuff!" class="btn">
+</form>
+
+{% for image_url in image_urls %}
+
+<img src="{{ image_url }}" alt="Product Image">
+
+{% endfor %}
+
+{% endblock %}

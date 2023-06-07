@@ -8,16 +8,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <!--Our CSS-->
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Play&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Play&display=swap" rel="stylesheet">
     <!--Let browser know website is optimized for mobile-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <title>PokePedia</title>
+    <style>
+        .dropdown-content {
+            width: auto !important;
+            right: 0 !important;
+            left: auto !important;
+            margin-right: 0 !important;
+        }
+
+        .dropdown-trigger {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content.dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+    </style>
   </head>
 
   <body>
@@ -25,7 +41,7 @@
         <nav>
             <div class="nav-wrapper #f8bbd0 pink lighten-4">
                 <ul>
-                    <li><a href="{% url 'home' %}" class="left brand-logo black-text">PokePedia</a></li>
+                    <li><a href="{% url 'home' %}" class="left brand-logo">&nbsp;&nbsp;&nbsp;Poképedia</a></li>
                 </ul>               
                 <ul class="right">
                     <li>
@@ -39,12 +55,19 @@
                         </div>
                     </li>
                     {% if user.is_authenticated %}
-                        <li><a href="" class="black-text">Example</a></li>
-                        <li><a href="{% url 'favorites' %}" class="black-text">Favorites</a></li>
-                        <li><a href="{% url 'logout' %}" class="black-text">Log Out</a></li>
+                        <li><a href="{% url 'favorites' %}">Favorites</a></li>
+                        <!-- Dropdown Trigger -->
+                        <a class="dropdown-trigger right-align" href="#!" data-target="dropdown1">Profile<i class="material-icons right">arrow_drop_down</i></a>
+                        <!-- Dropdown Structure -->
+                        <ul id="dropdown1" class="dropdown-content dark-mode right-align">
+                            <li><a href="">Profile</a></li>
+                            <li><a href="">Placeholder</a></li>
+                            <li class="divider"></li>
+                            <li><a href="{% url 'logout' %}">Log Out</a></li>
+                        </ul>
                     {% else %}
-                        <li><a href="{% url 'signup' %}" class="black-text">Sign Up</a></li>
-                        <li><a href="{% url 'login' %}" class="black-text">Log In</a></li>
+                        <li><a href="{% url 'signup' %}">Sign Up</a></li>
+                        <li><a href="{% url 'login' %}">Log In</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -55,9 +78,19 @@
         {% endblock %}
     </main>
     <footer class="page-footer #fff176 yellow lighten-2">
-        <div class="right black-text">&copy; 2023 PokePedia</div>
+        <div class="right black-text">&copy; 2023 Poképedia</div>
     </footer>
     <!--JavaScript at end of body for optimized loading-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdownEl = document.querySelectorAll('.dropdown-trigger')
+            const options = {
+                hover: false,
+                coverTrigger: false
+            }
+            M.Dropdown.init(dropdownEl, options)
+        })
+    </script>
   </body>
 </html>
