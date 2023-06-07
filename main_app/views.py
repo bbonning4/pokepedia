@@ -61,17 +61,20 @@ def search(request):
     }
     return render(request, 'pokemon/detail.html', {'name': name, 'image': image, 'context': context})    
 
+@login_required
 def favorites_index(request):
     profile_id = Profile.objects.get(user_id=request.user.id).id
     favorites = Favorite.objects.filter(profile_id=profile_id)
     return render(request, 'pokemon/favorites.html', {'favorites': favorites, 'profile_id': profile_id})
 
+@login_required
 def add_favorite(request):
     profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.create(name=request.POST.get('name'), image=request.POST.get('image'), profile=profile)
     # Redirects to current page
     return redirect(request.META['HTTP_REFERER'])
 
+@login_required
 def remove_favorite(request):
     profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.get(name=request.POST.get('name'), profile=profile)
@@ -91,6 +94,7 @@ def show_favorite(request, profile_id, favorite_id):
     # is_logged_in = user.is_active and user.is_authenticated
     return render(request, 'pokemon/show.html', {'favorite': favorite})
 
+@login_required
 def update_shiny(request):
     profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.get(name=request.POST.get('name'), profile=profile)
