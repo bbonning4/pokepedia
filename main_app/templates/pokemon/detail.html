@@ -2,7 +2,12 @@
 
 {% block content %}
 <h1>{{ name }}</h1>
+<h1>POKEDEX #</h1>
+<h1>TYPES</h1>
+<h1>WEAKNESSES</h1>
 <img src="{{ image }}" alt="Image of {{ name }}">
+<h1>DESCRIPTION</h1>
+<h2>EVOLUTION LINE</h2>
 
 <!-- Add Favorites -->
 {% if context.is_favorite %}
@@ -20,5 +25,9 @@
     <input type="submit" value="Favorite" class="btn">
 </form>
 {% endif %}
+
+<form action="{% url 'products' name %}" method="GET">
+    <input type="submit" value="View products related to this Pokemon!" class="btn">
+</form>
 
 {% endblock %}

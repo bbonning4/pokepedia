@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<form action="{% url 'more_products' %}" method="GET">
+<form action="{% url 'more_products' name %}" method="GET">
     <!-- {% csrf_token %} -->
     <input type="submit" value="More Stuff!" class="btn">
 </form>
