@@ -132,3 +132,6 @@ def find_more_products(request, name):
         image_tags = soup.find_all('img')
         image_urls = [img['src'] for img in image_tags[1:]]
     return render(request, 'pokemon/products.html', {'image_urls': image_urls, 'name': name})
+
+def edit_profile(request, profile_id):
+    pass
