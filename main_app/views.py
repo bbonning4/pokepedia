@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Profile, Favorite
 from .utils import POKEMON
+from bs4 import BeautifulSoup
+import random
 import requests
 
 # Create your views here.
@@ -107,3 +109,22 @@ def update_shiny(request):
         favorite.image = not_shiny_image     
     favorite.save()
     return redirect(request.META['HTTP_REFERER'])
+
+def find_products(request):
+    url = f"https://www.google.com/search?q=slowpoke+pokemon&tbm=shop"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    image_tags = soup.find_all('img')
+    image_urls = [img['src'] for img in image_tags[1:]]
+    return render(request, 'pokemon/products.html', {'image_urls': image_urls})
+
+def find_more_products(request):
+    image_urls = []
+    while len(image_urls) < 20:
+        random_page = random.randint(0, 500)
+        url = f"https://www.google.com/search?q=slowpoke+pokemon&tbm=shop&start={random_page}"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        image_tags = soup.find_all('img')
+        image_urls = [img['src'] for img in image_tags[1:]]
+    return render(request, 'pokemon/products.html', {'image_urls': image_urls})
