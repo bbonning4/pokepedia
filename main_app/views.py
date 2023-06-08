@@ -65,6 +65,7 @@ def search(request):
 def favorites_index(request):
     profile_id = Profile.objects.get(user_id=request.user.id).id
     favorites = Favorite.objects.filter(profile_id=profile_id)
+    favorites = sorted(favorites, key=lambda favorite: favorite.name)
     return render(request, 'pokemon/favorites.html', {'favorites': favorites, 'profile_id': profile_id})
 
 @login_required
