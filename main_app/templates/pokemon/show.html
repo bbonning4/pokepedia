@@ -31,7 +31,9 @@
         <h3>EVOLUTION LINE</h3>
     </div>
 
-    <button class="view-btn">VIEW PRODUCTS</button>
+    <form action="{% url 'products' favorite.name %}" method="GET">
+        <input type="submit" value="View products related to this Pokemon!" class="btn-fav">
+    </form>
 </div>
     
     
