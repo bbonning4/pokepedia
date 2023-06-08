@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<img src="{{ profile.avatar }}" alt="{{ profile.user.username }}'s Profile Picture" class="avatar">
+<p>{{ profile.user.username }}</p>
+<p>{{ profile.display_name }}</p>
+
+<form action="" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Update" class="btn">
+</form>
+<form action="{% url 'update_avatar' profile.id %}" enctype="multipart/form-data" method="POST">
+    {% csrf_token %}
+    <input type="file" name="photo-file">
+    <br><br>
+    <button type="submit" class="btn">Edit Avatar</button>
+</form>
+
+<script>
+     // Init Materialize Select Element
+     document.addEventListener('DOMContentLoaded', () => {
+        const selectFavPokemon = document.getElementById('id_favorite_pokemon');
+        M.FormSelect.init(selectFavPokemon);
+    });
+</script>
+
+{% endblock %}
