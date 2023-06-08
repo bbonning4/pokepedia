@@ -1,3 +1,7 @@
+import os # used to access .env variables
+import uuid # helpful for generating random strings
+import boto3 # AWS SDK python library
+from typing import Any, Dict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
@@ -5,7 +9,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Profile, Favorite
+from .models import Profile, Favorite, Photo
 from .utils import POKEMON
 from bs4 import BeautifulSoup
 import random
@@ -172,3 +176,35 @@ def find_more_products(request, name):
         'images_and_urls': filtered_list_20,
     }
     return render(request, 'pokemon/products.html', context)
+
+
+
+class ProfileUpdate(LoginRequiredMixin, UpdateView):
+    model = Profile
+    fields = ['display_name', 'favorite_pokemon']
+
+    # Sets default display name to users username
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['display_name'] = self.request.user.username
+        return initial  
+    
+
+@login_required
+def update_avatar(request, profile_id):
+    # photo_file will be set to the name attribute on the input type="file"
+    photo_file = request.FILES.get('photo-file', None)
+    if photo_file:
+        s3 = boto3.client('s3')
+        # creates unique filename with 6 characters & keeps file extension
+        key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
+        try:
+            bucket = os.environ['S3_BUCKET']
+            s3.upload_fileobj(photo_file, bucket, key)
+            # builds url string
+            url = f"{os.environ['S3_BASE_URL']}{bucket}/{key}"
+            Photo.objects.create(url=url, profile_id=profile_id)
+        except Exception as e:
+            print('An error occured uploading file to S3')
+            print(e)
+    return redirect('update_profile', profile_id=profile_id)

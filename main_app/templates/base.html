@@ -26,12 +26,13 @@
         }
 
         .dropdown-trigger {
+            height: 65px;
+            width: 115px;
             position: relative;
             display: inline-block;
         }
         .dropdown-content.dark-mode {
-            background-color: #333;
-            color: #fff;
+            background-color: var(--main-dark);
         }
     </style>
   </head>
@@ -39,13 +40,13 @@
   <body>
     <header class="navbar-fixed">
         <nav>
-            <div class="nav-wrapper #f8bbd0 pink lighten-4">
+            <div class="nav-wrapper">
                 <ul>
                     <li><a href="{% url 'home' %}" class="left brand-logo">&nbsp;&nbsp;&nbsp;Poképedia</a></li>
                 </ul>               
                 <ul class="right">
                     <li>
-                        <div class="nav-wrapper" style="margin-top: 20px; height: 30px;">
+                        <div class="nav-wrapper" style="margin-top: 16px; height: 35px;">
                             <form method="GET" action="{% url 'search' %}">
                                 <div class="input-field">
                                   <input id="search" type="search" name="pokemon_name" required style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
@@ -57,13 +58,16 @@
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'favorites' %}">Favorites</a></li>
                         <!-- Dropdown Trigger -->
-                        <a class="dropdown-trigger right-align" href="#!" data-target="dropdown1">Profile<i class="material-icons right">arrow_drop_down</i></a>
+                        <a class="dropdown-trigger right-align" href="#!" data-target="dropdown1">
+                            <img src="{{ user.profile.avatar }}" alt="pfp" class="navatar">
+                            <i class="material-icons right">arrow_drop_down</i>
+                        </a>
                         <!-- Dropdown Structure -->
                         <ul id="dropdown1" class="dropdown-content dark-mode right-align">
-                            <li><a href="">Profile</a></li>
-                            <li><a href="">Placeholder</a></li>
+                            <li><a href="{% url 'update_profile' request.user.profile.pk %}" class="white-text">Edit Profile</a></li>
+                            <li><a href="{% url 'favorites' %}" class="white-text">Placeholder</a></li>
                             <li class="divider"></li>
-                            <li><a href="{% url 'logout' %}">Log Out</a></li>
+                            <li><a href="{% url 'logout' %}" class="white-text">Log Out</a></li>
                         </ul>
                     {% else %}
                         <li><a href="{% url 'signup' %}">Sign Up</a></li>
