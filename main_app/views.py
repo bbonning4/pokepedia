@@ -9,7 +9,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Profile, Favorite, Photo
+from .models import Profile, Favorite, Photo, Wishlist
 from .utils import POKEMON
 from bs4 import BeautifulSoup
 import random
@@ -30,6 +30,7 @@ def signup(request):
             # This will add the user to the database
             user = form.save()
             profile = Profile(user=user)
+            print(profile.favorite_pokemon)
             profile.save()
             # This is how we log a user in via code
             login(request, user)
@@ -123,20 +124,96 @@ def find_products(request, name):
     url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-    image_tags = soup.find_all('img')
-    image_urls = [img['src'] for img in image_tags[1:]]
-    return render(request, 'pokemon/products.html', {'image_urls': image_urls, 'name': name})
+
+    divs = soup.find_all('div')
+    images = []
+    urls = []  
+    for div in divs:
+        a_element = div.find('a')
+        img_element = div.find('img')
+        if a_element and img_element:
+            image = img_element.get('src')
+            url_param = a_element.get('href')
+            images.append(image)
+            urls.append(f"https://www.google.com{url_param}")
+
+    images_and_urls = list(zip(images, urls))
+    filtered_list = images_and_urls[1::3]
+    filtered_list_20 = filtered_list[:20]
+
+    context = {
+        'name': name,
+        'images_and_urls': filtered_list_20,
+    }
+    return render(request, 'pokemon/products.html', context)
 
 def find_more_products(request, name):
-    image_urls = []
-    while len(image_urls) < 20:
-        random_page = random.randint(0, 500)
-        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        image_tags = soup.find_all('img')
-        image_urls = [img['src'] for img in image_tags[1:]]
-    return render(request, 'pokemon/products.html', {'image_urls': image_urls, 'name': name})
+    profile_id = Profile.objects.get(user_id=request.user.id).id
+    wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
+    images = []
+    urls = []
+    is_wishlist_items = []
+    products = []
+    random_page = random.randint(0, 500)
+    url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    divs = soup.find_all('div')
+
+    for div in divs:
+        is_wishlist_item = False
+        a_element = div.find('a')
+        img_element = div.find('img')
+        if a_element and img_element:
+            image = img_element.get('src')
+            url_param = a_element.get('href')
+            images.append(image)
+            urls.append(f"https://www.google.com{url_param}")
+            for item in wishlist_items:
+                if image == item.image:
+                    is_wishlist_item = True
+                    is_wishlist_items.append(is_wishlist_item)
+            if not is_wishlist_item:
+                    is_wishlist_item = False
+                    is_wishlist_items.append(is_wishlist_item)
+            product = {
+                'image': image,
+                'url': url,
+                'is_wishlist_item': True,
+            }
+            products.append(product)
+
+    filtered_list = products[1::3]
+    if len(filtered_list) < 24:
+        filtered_list_20 = filtered_list[:len(filtered_list) - 6]
+    else:    
+        filtered_list_20 = filtered_list[:20]
+
+    context = {
+        'name': name,
+        'images_and_urls': filtered_list_20,
+    }
+    return render(request, 'pokemon/products.html', context)
+
+def wishlist_index(request):
+    profile_id = Profile.objects.get(user_id=request.user.id).id
+    wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
+    context = {
+        'wishlist_items': wishlist_items,
+    }
+    return render(request, 'pokemon/wishlist.html', context)
+
+def add_wishlist_item(request):
+    profile = Profile.objects.get(user_id=request.user.id)
+    wishlist_item = Wishlist.objects.create(image=request.POST.get('image'), url=request.POST.get('url'), profile=profile)
+    return redirect(request.META['HTTP_REFERER'])
+
+def remove_wishlist_item(request, wishlist_id):
+    profile_id = Profile.objects.get(user_id=request.user.id).id
+    profile = get_object_or_404(Profile, id=profile_id)
+    if profile.user != request.user:
+        return redirect('/')
+    return redirect(request.META['HTTP_REFERER'])
 
 
 class ProfileUpdate(LoginRequiredMixin, UpdateView):
@@ -146,7 +223,7 @@ class ProfileUpdate(LoginRequiredMixin, UpdateView):
     # Sets default display name to users username
     def get_initial(self):
         initial = super().get_initial()
-        initial['display_name'] = self.request.user.username
+        initial['display_name'] = self.object.display_name
         return initial  
     
 
@@ -163,8 +240,11 @@ def update_avatar(request, profile_id):
             s3.upload_fileobj(photo_file, bucket, key)
             # builds url string
             url = f"{os.environ['S3_BASE_URL']}{bucket}/{key}"
-            Photo.objects.create(url=url, profile_id=profile_id)
+            photo = Photo.objects.create(url=url, profile_id=profile_id)
+            profile = Profile.objects.get(user_id=request.user.id)
+            profile.avatar = photo.url
+            profile.save()
         except Exception as e:
             print('An error occured uploading file to S3')
             print(e)
-    return redirect('update_profile', profile_id=profile_id)
+    return redirect('update_profile', pk=profile_id)
