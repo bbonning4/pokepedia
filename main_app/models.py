@@ -6,9 +6,6 @@ from django.contrib.auth.models import User
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.CharField(max_length=250, default='https://w0.peakpx.com/wallpaper/416/975/HD-wallpaper-slowpoke-pokemon-face-eyes.jpg')
-
-    # def get_absolute_url(self):
-    #     return reverse('update_profile', kwargs={'profile_id': self.id})
     
     def __str__(self):
         return self.user.username

@@ -2,15 +2,14 @@
   box-sizing: border-box;
 }
 
-html {
-  overflow-y: scroll;
+:root {
+  --main-dark: #0A132E;
 }
 
 body {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
-    background-color: #cdb4db;
     font-family: 'Play', sans-serif;
 }
 
@@ -133,13 +132,14 @@ h1 {
 
 
 /* ======- Nav Bar -====== */
-nav {
-  width: 100%;
+.nav-wrapper {
+  background-color: var(--main-dark);
 }
 
 .navatar {
-  margin: 0;
-  border: 0.5px solid #fff;
+  margin-right: -10px;
+  margin-top: 10px;
+  border: 1.5px solid #fff;
   border-radius: 50%;
   height: 45px;
   width: 45px;
