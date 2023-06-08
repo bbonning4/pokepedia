@@ -76,20 +76,20 @@ footer.page-footer {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px; 
-  }
+}
 
 .card {
-    position: relative;
-    background-color: rgb(56, 56, 56);
-    border-radius: 20px;
-    padding: 20px;
-    width: 350px; 
-    height: 400px; 
-    margin: 10px;
+  position: relative;
+  background-color: gray;
+  border-radius: 20px;
+  padding: 20px;
+  width: 350px; 
+  height: 400px; 
+  margin: 10px;
 }
 
 .image-container{
-    background-color: whitesmoke;
+  background-color: whitesmoke;
   border-radius: 20px;
   padding: 20px;
   display: flex;
@@ -98,31 +98,30 @@ footer.page-footer {
 }
 
 .card-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-  }
-  .pokemonimg {
-    width: 175px; 
-    height: 200px; 
-    margin: 10px;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+.pokemonimg {
+  width: 175px; 
+  height: 200px; 
+  margin: 10px;
+}
 
   
-  .card-title-style {
-    text-align: left;
-    margin: 0;
-    padding: 10px 10px 20px 50px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    box-sizing: border-box;
-    z-index: 1;
-    color: white;
-  }
 
-  
+.card-title-style {
+  text-align: left;
+  margin: 0;
+  padding: 10px 10px 20px 50px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
 
 .btn {
   background-color: rgb(5, 37, 21);
@@ -146,8 +145,6 @@ footer.page-footer {
     border-radius: 50px;
     background-color: transparent;
 }
-
-
 
 .card:hover {
     transform: scale(1.05);
@@ -192,7 +189,21 @@ h1 {
   object-fit: cover;
 }
 
+
+.carousel-container {
+  height: 200px;
+  width: 200px;
+}
+
+.avatar-carousel {
+  border-radius: 50%;
+  height: 175px;
+  width: 175px;
+  object-fit: cover;
+}
+
 /* show and detail page */
+
 
 .left-detail {
     position: absolute;

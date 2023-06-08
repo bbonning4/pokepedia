@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 
 <img src="{{ profile.avatar }}" alt="{{ profile.user.username }}'s Profile Picture" class="avatar">
-<p>{{ profile.user.username }}</p>
-<p>{{ profile.display_name }}</p>
+<p style="font-size: 28px; margin: 0;">{{ profile.display_name }}</p>
+<p style="margin: 0;">@{{ profile.user.username }}</p>
 
 <form action="" method="POST">
     {% csrf_token %}
@@ -17,12 +18,51 @@
     <button type="submit" class="btn">Edit Avatar</button>
 </form>
 
+<div class="carousel">
+    <a class="carousel-item" href="#mimikyu">
+        <div class="carousel-container">
+            <img src="{% static 'defaults/mimikyu.jpg' %}" class="avatar-carousel" alt="Mimikyu">
+        </div>
+    </a>
+    <a class="carousel-item" href="#eevee">
+        <div class="carousel-container">
+            <img src="{% static 'defaults/eevee.jpg' %}" class="avatar-carousel" alt="Eevee">
+        </div>
+    </a>
+    <a class="carousel-item" href="#gengar">
+        <div class="carousel-container">
+            <img src="{% static 'defaults/gengar.jpeg' %}" class="avatar-carousel" alt="Gengar">
+        </div>
+    </a>
+    <a class="carousel-item" href="#pikachu">
+        <div class="carousel-container">
+            <img src="{% static 'defaults/pikachu.jpeg' %}" class="avatar-carousel" alt="Pikachu">
+        </div>
+    </a>
+    <a class="carousel-item" href="#charmander">
+        <div class="carousel-container">
+            <img src="{% static 'defaults/charmander.jpeg' %}" class="avatar-carousel" alt="Charmander">
+        </div>
+    </a>
+    <a class="carousel-item" href="#slowpoke">
+        <div class="carousel-container">
+            <img src="{% static 'defaults/slowpoke.jpeg' %}" class="avatar-carousel" alt="Slowpoke">
+        </div>
+    </a>
+</div>
+
 <script>
      // Init Materialize Select Element
      document.addEventListener('DOMContentLoaded', () => {
         const selectFavPokemon = document.getElementById('id_favorite_pokemon');
         M.FormSelect.init(selectFavPokemon);
     });
+
+    // Init Materialize Carousel
+    $(document).ready(function(){  
+      $('.carousel').carousel();  
+    });
+
 </script>
 
 {% endblock %}
