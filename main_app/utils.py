@@ -1010,6 +1010,7 @@ POKEMON = {   'Abomasnow': 'abomasnow',
     'Zygarde': 'zygarde'}
 
 POKEMON_TUPLES = (   
+    ('slowpoke', 'Slowpoke'),
     ('abomasnow', 'Abomasnow'),
     ('abra', 'Abra'),
     ('absol', 'Absol'),
@@ -1812,7 +1813,6 @@ POKEMON_TUPLES = (
     ('slither-wing', 'Slither Wing'),
     ('slowbro', 'Slowbro'),
     ('slowking', 'Slowking'),
-    ('slowpoke', 'Slowpoke'),
     ('slugma', 'Slugma'),
     ('slurpuff', 'Slurpuff'),
     ('smeargle', 'Smeargle'),

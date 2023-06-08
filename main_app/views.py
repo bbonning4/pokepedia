@@ -30,6 +30,7 @@ def signup(request):
             # This will add the user to the database
             user = form.save()
             profile = Profile(user=user)
+            print(profile.favorite_pokemon)
             profile.save()
             # This is how we log a user in via code
             login(request, user)
@@ -146,7 +147,7 @@ class ProfileUpdate(LoginRequiredMixin, UpdateView):
     # Sets default display name to users username
     def get_initial(self):
         initial = super().get_initial()
-        initial['display_name'] = self.request.user.username
+        initial['display_name'] = self.object.display_name
         return initial  
     
 
@@ -163,8 +164,11 @@ def update_avatar(request, profile_id):
             s3.upload_fileobj(photo_file, bucket, key)
             # builds url string
             url = f"{os.environ['S3_BASE_URL']}{bucket}/{key}"
-            Photo.objects.create(url=url, profile_id=profile_id)
+            photo = Photo.objects.create(url=url, profile_id=profile_id)
+            profile = Profile.objects.get(user_id=request.user.id)
+            profile.avatar = photo.url
+            profile.save()
         except Exception as e:
             print('An error occured uploading file to S3')
             print(e)
-    return redirect('update_profile', profile_id=profile_id)
+    return redirect('update_profile', pk=profile_id)

@@ -12,7 +12,7 @@ class Profile(models.Model):
     favorite_pokemon = models.CharField(
         max_length=100,
         choices=POKEMON_TUPLES,
-        default=POKEMON_TUPLES[802][1] # 'Slowpoke'
+        default=POKEMON_TUPLES[0][1] # 'Slowpoke'
     )
 
     def save(self, *args, **kwargs):
