@@ -13,8 +13,6 @@
     top: 10px;
     right: 10px;
     z-index: 1;
-    background-color: gold;
-    border: 2px solid black;
     padding: 5px;
     cursor: pointer;
   }
@@ -30,7 +28,22 @@
     <a href="{{ url }}" target="_blank">
         <img src="{{ image }}" alt="Product Image">
     </a>
-    <button class="favorite-button"></button>
+    {% if context.is_wishlist_item %}
+    <form id="remove_wishlist_item" action="{% url 'remove_wishlist_item' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="url" value="{{ url }}">
+        <input type="hidden" name="image" value="{{ image }}">
+        <!--Need to change to a different icon-->
+        <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('remove_wishlist_item').submit();"><i class="material-icons">favorite</i></a>
+    </form>
+    {% else %}
+    <form id="add_wishlist_item" action="{% url 'add_wishlist_item' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="url" value="{{ url }}">
+        <input type="hidden" name="image" value="{{ image }}">
+        <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('add_wishlist_item').submit();"><i class="material-icons">favorite_border</i></a>
+    </form>
+    {% endif %}
 </div>
 
 {% endfor %}
