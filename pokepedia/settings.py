@@ -86,7 +86,7 @@ DATABASES = {
     'NAME': 'pokepedia',
     'USER': os.environ['DB_USER'],
     'PASSWORD': os.environ['DB_PW'],
-    'HOST': os.environ['DB_HOST'],
+    'HOST': os.environ['DATABASE_URL'],
     'PORT': '5432',
   }
 }
