@@ -6,7 +6,7 @@
   <div class="col s12 m6">
     <div class="card-container">
       {% for pokemon in favorites %}
-      <a href="">
+      <a href="{% url 'show_favorite' profile_id pokemon.id %}">
         <div class="card">
           <div class="card-content">
             <div class="image-container">
@@ -25,9 +25,10 @@
               <input type="hidden" name="image" value="{{ pokemon.image }}" />
               <input type="submit" value="Remove Favorite" class="btn" />
             </form>
-            <form action="" method="POST">
+            <form action="{% url 'update_shiny' %}" method="POST">
               {% csrf_token %}
               <button type="submit" name="shiny" class="shinybtn">
+                <input type="hidden" name="name" value="{{ pokemon.name }}">
                 <img
                   src="https://cdn-icons-png.flaticon.com/256/2267/2267359.png"
                   alt="shiny"
