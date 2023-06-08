@@ -119,17 +119,56 @@ def find_products(request, name):
     url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-    image_tags = soup.find_all('img')
-    image_urls = [img['src'] for img in image_tags[1:]]
-    return render(request, 'pokemon/products.html', {'image_urls': image_urls, 'name': name})
+
+    divs = soup.find_all('div')
+    images = []
+    urls = []  
+    for div in divs:
+        a_element = div.find('a')
+        img_element = div.find('img')
+        if a_element and img_element:
+            image = img_element.get('src')
+            url_param = a_element.get('href')
+            images.append(image)
+            urls.append(f"https://www.google.com{url_param}")
+
+    images_and_urls = list(zip(images, urls))
+    filtered_list = images_and_urls[1::3]
+    filtered_list_20 = filtered_list[:20]
+
+    context = {
+        'name': name,
+        'images_and_urls': filtered_list_20,
+    }
+    return render(request, 'pokemon/products.html', context)
 
 def find_more_products(request, name):
-    image_urls = []
-    while len(image_urls) < 20:
-        random_page = random.randint(0, 500)
-        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        image_tags = soup.find_all('img')
-        image_urls = [img['src'] for img in image_tags[1:]]
-    return render(request, 'pokemon/products.html', {'image_urls': image_urls, 'name': name})
+    images = []
+    urls = []
+    random_page = random.randint(0, 500)
+    url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    divs = soup.find_all('div')
+
+    for div in divs:
+        a_element = div.find('a')
+        img_element = div.find('img')
+        if a_element and img_element:
+            image = img_element.get('src')
+            url_param = a_element.get('href')
+            images.append(image)
+            urls.append(f"https://www.google.com{url_param}")
+
+    images_and_urls = list(zip(images, urls))
+    filtered_list = images_and_urls[1::3]
+    if len(filtered_list) < 24:
+        filtered_list_20 = filtered_list[:len(filtered_list) - 6]
+    else:    
+        filtered_list_20 = filtered_list[:20]
+
+    context = {
+        'name': name,
+        'images_and_urls': filtered_list_20,
+    }
+    return render(request, 'pokemon/products.html', context)
