@@ -9,9 +9,21 @@
 body {
     display: flex;
     min-height: 100vh;
-    background-color: rgb(255, 255, 255);
+    /* background-image: url('https://i.imgur.com/Maswfn9.jpg'); */
+    background-repeat: no-repeat;
+    background-size: cover;
     flex-direction: column;
     font-family: 'Play', sans-serif;
+}
+
+
+.bodydetail {
+    background-color: white;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    font-family: 'Play', sans-serif;
+
 }
 
 main {
@@ -28,8 +40,11 @@ footer.page-footer {
     text-align: center;
     font-family: 'Play', sans-serif;
     margin-top: 40px;
-    border-color: palegoldenrod;
     mask-border-width: 10px;
+    color:rgba(255, 255, 255, 0.8);
+    padding-top: 25%;
+    font-size: 600px;
+
 }
 
 .homepage h1 {
@@ -134,7 +149,7 @@ h1 {
 
 /* ======- Nav Bar -====== */
 .nav-wrapper {
-  background-color: var(--main-dark);
+  background-color: rgb(8, 35, 6);
 }
 
 .navatar {
