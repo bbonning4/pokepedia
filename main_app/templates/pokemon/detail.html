@@ -1,14 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{ name }}</h1>
-<h1>POKEDEX #</h1>
-<h1>TYPES</h1>
-<h1>WEAKNESSES</h1>
-<img src="{{ image }}" alt="Image of {{ name }}">
-<h1>DESCRIPTION</h1>
-<h2>EVOLUTION LINE</h2>
+<div class="detail-page">
+<div class="left-detail">
+    <h4>POKEDEX #</h4>
+    <h4>{{ name }}</h4>
+    <h5>DESCRIPTION</h5>
+</div>
+<div class="right-detail">
+    <h4>TYPES</h4>
+    <h4>WEAKNESSES</h4>
+</div>
+<div class="detail-img">
+    <img src="{{ image }}" alt="Image of {{ name }}">
+</div>
+<div class="evolution">
+    <h3>EVOLUTION LINE</h3>
+</div>
 
+
+<div class="bottom-right">
 <!-- Add Favorites -->
 {% if context.is_favorite %}
 <form action="{% url 'remove_favorite' %}" method="POST">
@@ -29,5 +40,7 @@
 <form action="{% url 'products' name %}" method="GET">
     <input type="submit" value="View products related to this Pokemon!" class="btn">
 </form>
+</div>
+</div>
 
 {% endblock %}
