@@ -10,6 +10,12 @@
     {{ form.as_p }}
     <input type="submit" value="Update" class="btn">
 </form>
+<form action="{% url 'update_avatar' profile.id %}" enctype="multipart/form-data" method="POST">
+    {% csrf_token %}
+    <input type="file" name="photo-file">
+    <br><br>
+    <button type="submit" class="btn">Edit Avatar</button>
+</form>
 
 <script>
      // Init Materialize Select Element
