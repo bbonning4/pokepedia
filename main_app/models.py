@@ -41,3 +41,11 @@ class Photo(models.Model):
 
     def __str__(self):
         return f"Photo for {self.profile.user.username}'s Profile @{self.url}"
+    
+class Wishlist(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    url = models.CharField(max_length=500)
+    image = models.CharField(max_length=250)
+
+    def __str__(self):
+        return f'Wishlist item for {self.profile.user.username}. Purchase Link -> @{self.url}'
