@@ -57,10 +57,13 @@
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'favorites' %}">Favorites</a></li>
                         <!-- Dropdown Trigger -->
-                        <a class="dropdown-trigger right-align" href="#!" data-target="dropdown1">Profile<i class="material-icons right">arrow_drop_down</i></a>
+                        <a class="dropdown-trigger right-align" href="#!" data-target="dropdown1">
+                            <img src="{{ profile.avatar }}" alt="pfp" class="navatar">
+                            <i class="material-icons right">arrow_drop_down</i>
+                        </a>
                         <!-- Dropdown Structure -->
                         <ul id="dropdown1" class="dropdown-content dark-mode right-align">
-                            <li><a href="">Profile</a></li>
+                            <li><a href="{% url 'update_profile' request.user.profile.pk %}">Edit Profile</a></li>
                             <li><a href="">Placeholder</a></li>
                             <li class="divider"></li>
                             <li><a href="{% url 'logout' %}">Log Out</a></li>
