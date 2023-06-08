@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
@@ -136,4 +137,9 @@ def find_more_products(request, name):
 
 class ProfileUpdate(LoginRequiredMixin, UpdateView):
     model = Profile
-    fields = ['avatar']
+    fields = ['avatar', 'display_name', 'favorite_pokemon']
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['display_name'] = self.request.user.username
+        return initial  

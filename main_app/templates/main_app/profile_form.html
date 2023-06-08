@@ -3,5 +3,20 @@
 
 <img src="{{ profile.avatar }}" alt="{{ profile.user.username }}'s Profile Picture" class="avatar">
 <p>{{ profile.user.username }}</p>
+<p>{{ profile.display_name }}</p>
+
+<form action="" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Update" class="btn">
+</form>
+
+<script>
+     // Init Materialize Select Element
+     document.addEventListener('DOMContentLoaded', () => {
+        const selectFavPokemon = document.getElementById('id_favorite_pokemon');
+        M.FormSelect.init(selectFavPokemon);
+    });
+</script>
 
 {% endblock %}
