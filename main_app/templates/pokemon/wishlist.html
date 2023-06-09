@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<style>
+<!-- <style>
   .image-container {
     position: relative;
     display: inline-block;
@@ -19,10 +19,10 @@
     cursor: pointer;
   }
 
-</style>
+</style> -->
 
 {% for wishlist_item in wishlist_items %}
-<div class="image-container">
+<div class="wishlist-image-container">
     <a href="{{ url }}" target="_blank">
         <img src="{{ image }}" alt="Product Image">
     </a>

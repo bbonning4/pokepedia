@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<style>
+<!-- <style>
   .image-container {
     position: relative;
     display: inline-block;
@@ -17,14 +17,14 @@
     cursor: pointer;
   }
 
-</style>
+</style> -->
 
 <form action="{% url 'more_products' name %}" method="GET">
     <input type="submit" value="More Stuff!" class="btn">
 </form>
 
 {% for image, url in images_and_urls %}
-<div class="image-container">
+<div class="products-image-container">
     <a href="{{ url }}" target="_blank">
         <img src="{{ image }}" alt="Product Image">
     </a>
