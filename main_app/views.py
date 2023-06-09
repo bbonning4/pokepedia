@@ -203,7 +203,6 @@ def search(request):
             'description': english_description,
         }
         return render(request, 'pokemon/detail.html', context)
-n
 
 
 @login_required

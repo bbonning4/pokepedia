@@ -2,58 +2,78 @@
 
 {% block content %}
 <div class="detail-page">
-<div class="left-detail">
-    <h4>#{{ dex_num }}</h4>
-    <h4>{{ name }}</h4>
-    <div class="description">
-        {{ description }}
+    <div class="left-detail">
+        <h4 style="font-size: 20px; margin: 0;">#{{ dex_num }}</h4>
+        <h4 style="font-size: 48px; margin-top: 0;">{{ name.upper }}</h4>
+        <!-- Add Favorites -->
+        {% if is_favorite %}
+        <form id="remove_favorite" action="{% url 'remove_favorite' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="name" value="{{ name }}">
+            <input type="hidden" name="image" value="{{ image }}">
+            <a id="unfav" class="favorite-button" href="javascript:{}" onclick="document.getElementById('remove_favorite').submit();"><i class="small material-icons">favorite</i></a>
+        </form>
+        {% else %}
+        <form id="add_favorite" action="{% url 'add_favorite' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="name" value="{{ name }}">
+            <input type="hidden" name="image" value="{{ image }}">
+            <a id="fav" class="favorite-button" href="javascript:{}" onclick="document.getElementById('add_favorite').submit();"><i class="small material-icons">favorite_border</i></a>
+        </form>
+        {% endif %}
+        <div class="description">
+            {{ description }}
+        </div>
+
+        <form action="{% url 'products' name %}" method="GET">
+            <input style="margin-top: 60px;" type="submit" value="View products related to {{ name }}!" class="btn">
+        </form>
     </div>
-</div>
-<div class="right-detail">
-    <h4>Types:</h4>
-    {% for type, color in types %}
-    <h4 id="type" style="background-color: {{ color }}">{{ type }}</h4>
-    {% endfor %}
-    <h4>Weaknesses</h4>
-    {% for weakness, value, color in weaknesses %}
-        <h4 id="weakness" style="background-color: {{ color }}">{{ value }}x{{ weakness }}</h4>
-    {% endfor %}
-</div>
-<div class="detail-img">
-    <img src="{{ image }}" alt="Image of {{ name }}">
-</div>
-<div class="evolution">
-    <h4>Abilities: </h4>
-    {% for ability in abilities %}
-        <a href="https://bulbapedia.bulbagarden.net/wiki/{{ ability }}_(Ability)" target="_blank">
-            <h4>&nbsp;&nbsp;{{ ability|title }}</h4>
-        </a><br>
-    {% endfor %}
-</div>
+    <div class="right-detail">
+        <h4 class="details-title">Types:</h4>
+        {% for type, color in types %}
+        <h4 class="details-info" id="type" style="background-color: {{ color }}">{{ type.upper }}</h4>
+        {% endfor %}
+        <h4 class="details-title">Weaknesses</h4>
+        {% for weakness, value, color in weaknesses %}
+            <h4 class="details-info" id="weakness" style="background-color: {{ color }}">{{ value }}x{{ weakness.upper }}</h4>
+        {% endfor %}
+    </div>
+    <div class="detail-img">
+        <img src="{{ image }}" alt="Image of {{ name }}">
+    </div>
+    <div class="evolution">
+        <h4>Abilities: </h4>
+        {% for ability in abilities %}
+            <a href="https://bulbapedia.bulbagarden.net/wiki/{{ ability }}_(Ability)" target="_blank">
+                <h4>&nbsp;&nbsp;{{ ability|title }}</h4>
+            </a><br>
+        {% endfor %}
+    </div>
 
 
-<div class="bottom-right">
-<!-- Add Favorites -->
-{% if is_favorite %}
-<form id="remove_favorite" action="{% url 'remove_favorite' %}" method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="name" value="{{ name }}">
-    <input type="hidden" name="image" value="{{ image }}">
-    <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('remove_favorite').submit();"><i class="material-icons">favorite</i></a>
-</form>
-{% else %}
-<form id="add_favorite" action="{% url 'add_favorite' %}" method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="name" value="{{ name }}">
-    <input type="hidden" name="image" value="{{ image }}">
-    <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('add_favorite').submit();"><i class="material-icons">favorite_border</i></a>
-</form>
-{% endif %}
+    <div class="bottom-right">
+        <!-- Add Favorites
+        {% if is_favorite %}
+        <form id="remove_favorite" action="{% url 'remove_favorite' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="name" value="{{ name }}">
+            <input type="hidden" name="image" value="{{ image }}">
+            <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('remove_favorite').submit();"><i class="medium material-icons">favorite</i></a>
+        </form>
+        {% else %}
+        <form id="add_favorite" action="{% url 'add_favorite' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="name" value="{{ name }}">
+            <input type="hidden" name="image" value="{{ image }}">
+            <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('add_favorite').submit();"><i class="medium material-icons">favorite_border</i></a>
+        </form>
+        {% endif %}
 
-<form action="{% url 'products' name %}" method="GET">
-    <input type="submit" value="View products related to {{ name }}!" class="btn">
-</form>
-</div>
+        <form action="{% url 'products' name %}" method="GET">
+            <input type="submit" value="View products related to {{ name }}!" class="btn">
+        </form> -->
+    </div>
 </div>
 
 {% endblock %}
