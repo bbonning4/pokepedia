@@ -387,7 +387,7 @@ def find_products(request, name):
                 urls.append(f"https://www.google.com{url_param}")
                 for item in wishlist_items:
                     if image == item.image:
-                        is_wishlist_item = True
+                        is_wishlist_item = item.id
                         is_wishlist_items.append(is_wishlist_item)
                 if not is_wishlist_item:
                         is_wishlist_item = False
