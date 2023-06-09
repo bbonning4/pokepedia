@@ -1,4 +1,4 @@
-# Pokepedia
+# Poképedia
 Experience the ultimate Pokémon app that combines a sleek aesthetic with user-friendly navigation. Easily find and select your favorite Pokémon, while enjoying the convenience of browsing through a wide range of memorabilia specifically tailored to your chosen Pokémon.
 
 Get started here -> https://pokepedia.herokuapp.com/
