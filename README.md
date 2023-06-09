@@ -1,12 +1,12 @@
 # Pokepedia
 Experience the ultimate Pokémon app that combines a sleek aesthetic with user-friendly navigation. Easily find and select your favorite Pokémon, while enjoying the convenience of browsing through a wide range of memorabilia specifically tailored to your chosen Pokémon.
 
-# Screenshots
+## Screenshots
 <img width="1659" alt="Screenshot 2023-06-08 at 1 49 28 PM" src="https://github.com/bbonning4/pokepedia/assets/129787723/f6b0a144-cb33-4289-8511-af93e4fb9a36">
 <img width="1640" alt="Screenshot 2023-06-08 at 2 26 26 PM" src="https://github.com/bbonning4/pokepedia/assets/129787723/d97b8971-97ad-4bfe-ab4b-f6774ddc1f5c">
 
 
-# User Stories
+## User Stories
 1. Search Memorabilia:
    - User can search for Pokémon memorabilia.
    - Ideally, the search should redirect to the specific Pokémon show page.
@@ -45,28 +45,20 @@ Experience the ultimate Pokémon app that combines a sleek aesthetic with user-f
    - The avatar can be customized to represent the user's preferred image or icon.
 
 
-# Technology used
-Bootstrap
+## Technologies used
 
-HTML/CSS
-
-Node JS
-
-Express JS
-
-Postgres
-
-BeautifulSoup
-
-Materialize
-
-Heroku
-
-JavaScript
-
-Django
+- HTML / CSS / JavaScript
+- Python
+- DTL
+- PostgreSQL / Neon
+- Django
+- BeautifulSoup
+- PokeAPI
+- Materialize
+- AWS S3
+- Heroku
+- GitHub
 
 
-
-# Icebox feautures
+## Icebox feautures
 Partial Search Results

@@ -18,12 +18,13 @@ import requests
 
 # Create your views here.
 def home(request):
-    profile = Profile.objects.get(user_id=request.user.id)
-    error_msg = ""
-    return render(request, 'home.html', {
-        'error_msg': error_msg,
-        'profile': profile
-    })
+    if request.user.id:
+        profile = Profile.objects.get(user_id=request.user.id)
+        return render(request, 'home.html', {
+            'profile': profile
+        })
+    else:
+        return render(request, 'home.html')
 
 def signup(request):
     error_message = ''
@@ -48,45 +49,45 @@ def signup(request):
     return render(request, 'registration/signup.html', context)  
 
 def search(request):
-    profile = Profile.objects.get(user_id=request.user.id)
-    profile_id = Profile.objects.get(user_id=request.user.id).id
-    favorites = Favorite.objects.filter(profile_id=profile_id)
-    pokemon_name = request.GET.get('pokemon_name')
-    #initialize for when a dex number is used
-    dex_num = pokemon_name
-    for key in POKEMON:
-        if key.lower() == pokemon_name.lower():
-            pokemon_name = POKEMON[key]
-            url_param = pokemon_name
-            break
+
+    if request.user.id:
+        profile = Profile.objects.get(user_id=request.user.id)
+        profile_id = Profile.objects.get(user_id=request.user.id).id
+        favorites = Favorite.objects.filter(profile_id=profile_id)
+        pokemon_name = request.GET.get('pokemon_name')
+        #initialize for when a dex number is used
+        dex_num = pokemon_name
+        for key in POKEMON:
+            if key.lower() == pokemon_name.lower():
+                pokemon_name = POKEMON[key]
+                url_param = pokemon_name
+                break
+            else:
+                url_param = dex_num
+
+        url = f"https://pokeapi.co/api/v2/pokemon/{url_param}"
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            json = response.json()
+            name = json["forms"][0]["name"]
+            dex_num = json["id"]
+            types = [type_data["type"]["name"] for type_data in json["types"]]
+            image = json["sprites"]["other"]["official-artwork"]["front_default"]
+            abilities = []
+            for ability_data in json['abilities']:
+                ability_name = ability_data['ability']['name']
+                abilities.append(ability_name)
         else:
-            url_param = dex_num
+            error_msg = "No Results"
 
-    url = f"https://pokeapi.co/api/v2/pokemon/{url_param}"
-    response = requests.get(url)
+            return render(request, '404.html', {
+                "error_msg": error_msg,
+                'profile': profile
+            })
 
-    if response.status_code == 200:
-        json = response.json()
-        name = json["forms"][0]["name"]
-        dex_num = json["id"]
-        types = [type_data["type"]["name"] for type_data in json["types"]]
-        image = json["sprites"]["other"]["official-artwork"]["front_default"]
-        abilities = []
-        for ability_data in json['abilities']:
-            ability_name = ability_data['ability']['name']
-            abilities.append(ability_name)
-    else:
-        error_msg = "No Results"
-
-        return render(request, '404.html', {
-            "error_msg": error_msg,
-            'profile': profile
-        })
-
-    evolution_chain = get_evolution_chain(name)
-
-    species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
-    species_response = requests.get(species_url)
+        species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
+        species_response = requests.get(species_url)
 
     if species_response.status_code == 200:
         species_json = species_response.json()
@@ -97,6 +98,7 @@ def search(request):
                 if entry["language"]["name"] == "en":
                     english_description = entry["flavor_text"]
                     english_description = english_description.replace('', ' ')
+
                     break
             else:
                 error_msg = "No Results"
@@ -105,51 +107,103 @@ def search(request):
                     "error_msg": error_msg,
                     'profile': profile
                 })
-    
-    type_colors = []
-    for type in types:
-        type_color = POKEMON_TYPES[type.lower()]
-        type_colors.append(type_color)
-    type_tuples = tuple(zip(types, type_colors))
 
-    type_url = "https://pokeapi.co/api/v2/type"
-    type_response = requests.get(type_url)
-    type_data = type_response.json()["results"]
+        type_colors = []
+        for type in types:
+            type_color = POKEMON_TYPES[type.lower()]
+            type_colors.append(type_color)
+        type_tuples = tuple(zip(types, type_colors))
 
-    weaknesses = {}
-    for pokemon_type in types:
-        for data in type_data:
-            if data["name"] == pokemon_type:
-                type_url = data["url"]
-                type_response = requests.get(type_url)
-                type_data_nested = type_response.json()
+        type_url = "https://pokeapi.co/api/v2/type"
+        type_response = requests.get(type_url)
+        type_data = type_response.json()["results"]
 
-                damage_relations = type_data_nested["damage_relations"]
-                for relation in damage_relations["double_damage_from"]:
-                    weakness_type = relation["name"]
-                    if weakness_type in weaknesses:
-                        weaknesses[weakness_type] += 1
-                    else:
-                        weaknesses[weakness_type] = 1
+        weaknesses = {}
+        for pokemon_type in types:
+            for data in type_data:
+                if data["name"] == pokemon_type:
+                    type_url = data["url"]
+                    type_response = requests.get(type_url)
+                    type_data_nested = type_response.json()
 
-    weakness_colors = []
-    for weakness, effective in weaknesses.items():
-        weakness_color = POKEMON_TYPES[weakness]
-        weakness_colors.append(weakness_color)
-    weakness_info_list = [(weakness, value * 2, color) for weakness, value, color in zip(weaknesses.keys(), weaknesses.values(), weakness_colors)]
-    name = next((key for key, val in POKEMON.items() if val == name), None)
-    context = {
-        'name': name,
-        'image': image,
-        'dex_num': dex_num,
-        'types': type_tuples,
-        'weaknesses': weakness_info_list,
-        'description': english_description,
-        'abilities': abilities,
-        'is_favorite': any(name == favorite.name for favorite in favorites),
-        'profile': profile
-    }
-    return render(request, 'pokemon/detail.html', context)
+                    damage_relations = type_data_nested["damage_relations"]
+                    for relation in damage_relations["double_damage_from"]:
+                        weakness_type = relation["name"]
+                        if weakness_type in weaknesses:
+                            weaknesses[weakness_type] += 1
+                        else:
+                            weaknesses[weakness_type] = 1
+
+        weakness_colors = []
+        for weakness, effective in weaknesses.items():
+            weakness_color = POKEMON_TYPES[weakness]
+            weakness_colors.append(weakness_color)
+        weakness_info_list = [(weakness, value * 2, color) for weakness, value, color in zip(weaknesses.keys(), weaknesses.values(), weakness_colors)]
+        name = next((key for key, val in POKEMON.items() if val == name), None)
+        context = {
+            'name': name,
+            'image': image,
+            'dex_num': dex_num,
+            'types': type_tuples,
+            'weaknesses': weakness_info_list,
+            'description': english_description,
+            'abilities': abilities,
+            'is_favorite': any(name == favorite.name for favorite in favorites),
+            'profile': profile
+        }
+        return render(request, 'pokemon/detail.html', context)
+    else:
+        pokemon_name = request.GET.get('pokemon_name')
+        #initialize for when a dex number is used
+        dex_num = pokemon_name
+        for key in POKEMON:
+            if key.lower() == pokemon_name.lower():
+                pokemon_name = POKEMON[key]
+                url_param = pokemon_name
+                break
+            else:
+                url_param = dex_num
+
+        url = f"https://pokeapi.co/api/v2/pokemon/{url_param}"
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            json = response.json()
+            name = json["forms"][0]["name"]
+            dex_num = json["id"]
+            types = [type_data["type"]["name"] for type_data in json["types"]]
+            image = json["sprites"]["other"]["official-artwork"]["front_default"]
+        else:
+            error_msg = "No Results"
+
+            return render(request, '404.html')
+
+        species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
+        species_response = requests.get(species_url)
+
+        if species_response.status_code == 200:
+            species_json = species_response.json()
+            flavor_text_entries = species_json["flavor_text_entries"]
+            english_description = ""
+            for entry in flavor_text_entries:
+                if entry["language"]["name"] == "en":
+                    english_description = entry["flavor_text"]
+                    break
+            else:
+                error_msg = "No Results"
+
+                return render(request, '404.html')
+        
+        name = next((key for key, val in POKEMON.items() if val == name), None)
+        context = {
+            'name': name,
+            'image': image,
+            'dex_num': dex_num,
+            'types': types,
+            'description': english_description,
+        }
+        return render(request, 'pokemon/detail.html', context)
+n
 
 
 @login_required
@@ -216,105 +270,185 @@ def update_shiny(request):
     return redirect(request.META['HTTP_REFERER'])
 
 def find_products(request, name):
-    profile = Profile.objects.get(user_id=request.user.id)
-    profile_id = Profile.objects.get(user_id=request.user.id).id
-    wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
-    images = []
-    urls = []
-    is_wishlist_items = []
-    products = []
+    if request.user.id:
+        profile = Profile.objects.get(user_id=request.user.id)
+        profile_id = Profile.objects.get(user_id=request.user.id).id
+        wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
+        images = []
+        urls = []
+        is_wishlist_items = []
+        products = []
 
-    url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    divs = soup.find_all('div')
+        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        divs = soup.find_all('div')
 
-    for div in divs:
-        is_wishlist_item = False
-        a_element = div.find('a')
-        img_element = div.find('img')
-        if a_element and img_element:
-            image = img_element.get('src')
-            url_param = a_element.get('href')
-            images.append(image)
-            urls.append(f"https://www.google.com{url_param}")
-            for item in wishlist_items:
-                if image == item.image:
-                    is_wishlist_item = True
-                    is_wishlist_items.append(is_wishlist_item)
-            if not is_wishlist_item:
-                    is_wishlist_item = False
-                    is_wishlist_items.append(is_wishlist_item)
-            product = {
-                'image': image,
-                'url': url,
-                'is_wishlist_item': is_wishlist_item,
-            }
-            products.append(product)
+        for div in divs:
+            is_wishlist_item = False
+            a_element = div.find('a')
+            img_element = div.find('img')
+            if a_element and img_element:
+                image = img_element.get('src')
+                url_param = a_element.get('href')
+                images.append(image)
+                urls.append(f"https://www.google.com{url_param}")
+                for item in wishlist_items:
+                    if image == item.image:
+                        is_wishlist_item = True
+                        is_wishlist_items.append(is_wishlist_item)
+                if not is_wishlist_item:
+                        is_wishlist_item = False
+                        is_wishlist_items.append(is_wishlist_item)
+                product = {
+                    'image': image,
+                    'url': url,
+                    'is_wishlist_item': is_wishlist_item,
+                }
+                products.append(product)
 
-    filtered_list = products[1::3]
-    if len(filtered_list) < 24:
-        filtered_list_20 = filtered_list[:len(filtered_list) - 6]
-    else:    
-        filtered_list_20 = filtered_list[:20]
+        filtered_list = products[1::3]
+        if len(filtered_list) < 24:
+            filtered_list_20 = filtered_list[:len(filtered_list) - 6]
+        else:    
+            filtered_list_20 = filtered_list[:20]
 
-    context = {
-        'name': name,
-        'profile': profile,
-        'items': filtered_list_20,
-    }
-    return render(request, 'pokemon/products.html', context)
+        context = {
+            'name': name,
+            'profile': profile,
+            'items': filtered_list_20,
+        }
+        return render(request, 'pokemon/products.html', context)
+    else:
+        images = []
+        urls = []
+        is_wishlist_items = []
+        products = []
+
+        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        divs = soup.find_all('div')
+
+        for div in divs:
+            a_element = div.find('a')
+            img_element = div.find('img')
+            if a_element and img_element:
+                image = img_element.get('src')
+                url_param = a_element.get('href')
+                images.append(image)
+                urls.append(f"https://www.google.com{url_param}")
+                product = {
+                    'image': image,
+                    'url': url,
+                }
+                products.append(product)
+
+        filtered_list = products[1::3]
+        if len(filtered_list) < 24:
+            filtered_list_20 = filtered_list[:len(filtered_list) - 6]
+        else:    
+            filtered_list_20 = filtered_list[:20]
+
+        context = {
+            'name': name,
+            'items': filtered_list_20,
+        }
+        return render(request, 'pokemon/products.html', context)
+
+
 
 def find_more_products(request, name):
-    profile = Profile.objects.get(user_id=request.user.id)
-    profile_id = Profile.objects.get(user_id=request.user.id).id
-    wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
-    images = []
-    urls = []
-    is_wishlist_items = []
-    products = []
-    random_page = random.randint(0, 500)
-    url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    divs = soup.find_all('div')
+    if request.user.id:
+        profile = Profile.objects.get(user_id=request.user.id)
+        profile_id = Profile.objects.get(user_id=request.user.id).id
+        wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
+        images = []
+        urls = []
+        is_wishlist_items = []
+        products = []
+        random_page = random.randint(0, 500)
+        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        divs = soup.find_all('div')
 
-    for div in divs:
-        is_wishlist_item = False
-        a_element = div.find('a')
-        img_element = div.find('img')
-        if a_element and img_element:
-            image = img_element.get('src')
-            url_param = a_element.get('href')
-            images.append(image)
-            urls.append(f"https://www.google.com{url_param}")
-            for item in wishlist_items:
-                if image == item.image:
-                    is_wishlist_item = item.id
-                    is_wishlist_items.append(is_wishlist_item)
-            if not is_wishlist_item:
-                    is_wishlist_item = False
-                    is_wishlist_items.append(is_wishlist_item)
-            product = {
-                'image': image,
-                'url': url,
-                'is_wishlist_item': is_wishlist_item,
-            }
-            products.append(product)
+        for div in divs:
+            is_wishlist_item = False
+            a_element = div.find('a')
+            img_element = div.find('img')
+            if a_element and img_element:
+                image = img_element.get('src')
+                url_param = a_element.get('href')
+                images.append(image)
+                urls.append(f"https://www.google.com{url_param}")
+                for item in wishlist_items:
+                    if image == item.image:
+                        is_wishlist_item = item.id
+                        is_wishlist_items.append(is_wishlist_item)
+                if not is_wishlist_item:
+                        is_wishlist_item = False
+                        is_wishlist_items.append(is_wishlist_item)
+                product = {
+                    'image': image,
+                    'url': url,
+                    'is_wishlist_item': is_wishlist_item,
+                }
+                products.append(product)
 
-    filtered_list = products[1::3]
-    if len(filtered_list) < 24:
-        filtered_list_20 = filtered_list[:len(filtered_list) - 6]
-    else:    
-        filtered_list_20 = filtered_list[:20]
+        filtered_list = products[1::3]
+        if len(filtered_list) < 24:
+            filtered_list_20 = filtered_list[:len(filtered_list) - 6]
+        else:    
+            filtered_list_20 = filtered_list[:20]
 
-    context = {
-        'name': name,
-        'profile': profile,
-        'items': filtered_list_20,
-    }
-    return render(request, 'pokemon/products.html', context)
+        context = {
+            'name': name,
+            'profile': profile,
+            'items': filtered_list_20,
+        }
+        return render(request, 'pokemon/products.html', context)
+    else:
+        images = []
+        urls = []
+        is_wishlist_items = []
+        products = []
+        random_page = random.randint(0, 500)
+        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        divs = soup.find_all('div')
 
+        for div in divs:
+            is_wishlist_item = False
+            a_element = div.find('a')
+            img_element = div.find('img')
+            if a_element and img_element:
+                image = img_element.get('src')
+                url_param = a_element.get('href')
+                images.append(image)
+                urls.append(f"https://www.google.com{url_param}")
+                product = {
+                    'image': image,
+                    'url': url,
+                }
+                products.append(product)
+
+        filtered_list = products[1::3]
+        if len(filtered_list) < 24:
+            filtered_list_20 = filtered_list[:len(filtered_list) - 6]
+        else:    
+            filtered_list_20 = filtered_list[:20]
+
+        context = {
+            'name': name,
+            'items': filtered_list_20,
+        }
+        return render(request, 'pokemon/products.html', context)
+
+
+
+@login_required
 def wishlist_index(request):
     profile = Profile.objects.get(user_id=request.user.id)
     profile_id = Profile.objects.get(user_id=request.user.id).id
@@ -325,11 +459,13 @@ def wishlist_index(request):
     }
     return render(request, 'pokemon/wishlist.html', context)
 
+@login_required
 def add_wishlist_item(request):
     profile = Profile.objects.get(user_id=request.user.id)
     wishlist_item = Wishlist.objects.create(image=request.POST.get('image'), url=request.POST.get('url'), profile=profile)
     return redirect(request.META['HTTP_REFERER'])
 
+@login_required
 def remove_wishlist_item(request, wishlist_id):
     profile_id = Profile.objects.get(user_id=request.user.id).id
     profile = get_object_or_404(Profile, id=profile_id)
