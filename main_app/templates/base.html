@@ -61,10 +61,12 @@
                     
                         <!-- Dropdown Trigger -->
                         <a class="dropdown-trigger right-align" href="#!" data-target="dropdown1">
-                            {% if profile.avatar|starts_with_http %}
-                                <img src="{{ user.profile.avatar }}" alt="pfp" class="navatar">
-                            {% else %}
-                                <img src="{% static 'defaults/' %}{{ profile.avatar }}.jpeg" alt="{{ profile.user.username }}'s Profile Picture" class="navatar">
+                            {% if profile %}
+                                {% if profile.avatar|starts_with_http %}
+                                    <img src="{{ user.profile.avatar }}" alt="pfp" class="navatar">
+                                {% else %}
+                                    <img src="{% static 'defaults/' %}{{ profile.avatar }}.jpeg" alt="{{ profile.user.username }}'s Profile Picture" class="navatar">
+                                {% endif %}
                             {% endif %}
                             <i class="material-icons right">arrow_drop_down</i>
                         </a>

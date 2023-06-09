@@ -2,28 +2,43 @@
 {% load static %}
 {% load image_helpers %}
 {% block content %}
+<section class="profile-page">
+    <div class="avatar-container">
+        {% if profile.avatar|starts_with_http %}
+            <img src="{{ profile.avatar }}" alt="Avatar" class="avatar">
+        {% else %}
+            <img src="{% static 'defaults/' %}{{ profile.avatar }}.jpeg" alt="Avatar" class="avatar">
+        {% endif %}
+    </div>
+    <div class="names-container">
+        <div>
+            <p style="font-size: 40px; margin: 4px 75px;">{{ profile.display_name }}</p>
+            <p style="font-size: 18px; margin: 4px 75px;">@{{ profile.user.username }}</p>
+        </div>
+    </div>
 
-{% if profile.avatar|starts_with_http %}
-    <img src="{{ profile.avatar }}" alt="Avatar" class="avatar">
-{% else %}
-    <img src="{% static 'defaults/' %}{{ profile.avatar }}.jpeg" alt="Avatar" class="avatar">
-{% endif %}
+    <hr id="pfp-hr">
 
-<form action="{% url 'update_avatar' profile.id %}" class="upload-img-form" enctype="multipart/form-data" method="POST">
-    {% csrf_token %}
-    <label for="img-upload"><i id="cloud-upload" class="material-icons">cloud_upload</i></label>
-    <input type="file" name="photo-file" id="img-upload" hidden>
-    <br><br>
-    <button type="submit" class="btn">Edit Avatar</button>
-</form>
-<p style="font-size: 28px; margin: 0;">{{ profile.display_name }}</p>
-<p style="margin: 0;">@{{ profile.user.username }}</p>
+    <div class="img-form-container">
+        <form action="{% url 'update_avatar' profile.id %}" id="img-form" class="upload-img-form" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+            <label for="">Upload Custom Avatar</label>
+            <br>
+            <label for="img-upload"><i id="cloud-upload" class="medium material-icons">cloud_upload</i></label>
+            <input type="file" name="photo-file" id="img-upload" hidden>
+        </form>
+    </div>
 
-<form action="" method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Update" class="btn">
-</form>
+    <form action="" id="other-form" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Update" class="btn form-buttons">
+        <button type="submit" form="img-form" class="btn form-buttons">Edit Avatar</button>
+    </form>
+
+    <!-- <input type="button" value="submit" onclick="submitForms()"> -->
+
+</section>
 
 <!-- DEFAULTS -->
 <form id="carousel-form" method="POST">
@@ -61,6 +76,7 @@
         </a>
     </div>
 </form>
+
 
 <script>
      // Init Materialize Select Element
@@ -106,6 +122,11 @@
             })
         }
     })
+
+    // async function submitForms(){
+    //     await document.getElementById('other-form').submit()
+    //     await document.getElementById('img-form').submit()
+    // }
 
 </script>
 
