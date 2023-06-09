@@ -11,14 +11,11 @@
         <form action="{% url 'update_shiny' %}" method="POST">
             {% csrf_token %}
             <button type="submit" name="shiny" class="fav-btn">
-                <input type="hidden" name="name" value="{{ favorite.name }}">
+                <input type="hidden" name="name" value="{{ name }}">
                 <img src="https://cdn-icons-png.flaticon.com/256/2267/2267359.png" alt="shiny">
             </button>
         </form>
     </div>
-    <form action="{% url 'update_shiny' %}" method="POST">
-        {% csrf_token %}
-    </form>
     <div class="right-detail">
         <h4>Types:</h4>
         {% for type, color in types %}
