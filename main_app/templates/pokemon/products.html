@@ -2,45 +2,28 @@
 
 {% block content %}
 
-<style>
-  .image-container {
-    position: relative;
-    display: inline-block;
-  }
-  
-  .favorite-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1;
-    padding: 5px;
-    cursor: pointer;
-  }
-
-</style>
-
 <form action="{% url 'more_products' name %}" method="GET">
     <input type="submit" value="More Stuff!" class="btn">
 </form>
 
-{% for image, url in images_and_urls %}
-<div class="image-container">
-    <a href="{{ url }}" target="_blank">
-        <img src="{{ image }}" alt="Product Image">
+{% for item in items %}
+<div class="products-image-container">
+    <a href="{{ item.url }}" target="_blank">
+        <img src="{{ item.image }}" alt="Product Image" class="product-image">
     </a>
-    {% if context.is_wishlist_item %}
-    <form id="remove_wishlist_item" action="{% url 'remove_wishlist_item' %}" method="POST">
+    {% if item.is_wishlist_item %}
+    <form id="remove_wishlist_item" action="{% url 'remove_wishlist_item' item.is_wishlist_item %}" method="POST">
         {% csrf_token %}
-        <input type="hidden" name="url" value="{{ url }}">
-        <input type="hidden" name="image" value="{{ image }}">
+        <input type="hidden" name="url" value="{{ item.url }}">
+        <input type="hidden" name="image" value="{{ item.image }}">
         <!--Need to change to a different icon-->
         <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('remove_wishlist_item').submit();"><i class="material-icons">favorite</i></a>
     </form>
     {% else %}
     <form id="add_wishlist_item" action="{% url 'add_wishlist_item' %}" method="POST">
         {% csrf_token %}
-        <input type="hidden" name="url" value="{{ url }}">
-        <input type="hidden" name="image" value="{{ image }}">
+        <input type="hidden" name="url" value="{{ item.url }}">
+        <input type="hidden" name="image" value="{{ item.image }}">
         <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('add_wishlist_item').submit();"><i class="material-icons">favorite_border</i></a>
     </form>
     {% endif %}

@@ -61,7 +61,7 @@ def search(request):
             break
         else:
             url_param = dex_num
-        
+
     url = f"https://pokeapi.co/api/v2/pokemon/{url_param}"
     response = requests.get(url)
 
@@ -73,12 +73,13 @@ def search(request):
         image = json["sprites"]["other"]["official-artwork"]["front_default"]
     else:
         error_msg = "No Results"
+
         return render(request, '404.html', {
             "error_msg": error_msg,
             'profile': profile
         })
-    
-    species_url = f"https://pokeapi.co/api/v2/pokemon-species/{name}"
+
+    species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
     species_response = requests.get(species_url)
 
     if species_response.status_code == 200:
@@ -91,6 +92,7 @@ def search(request):
                 break
         else:
             error_msg = "No Results"
+
             return render(request, '404.html', {
                 "error_msg": error_msg,
                 'profile': profile
@@ -103,10 +105,12 @@ def search(request):
         'dex_num': dex_num,
         'types': types,
         'description': english_description,
+
         'is_favorite': any(name == favorite.name for favorite in favorites),
         'profile': profile
     }
     return render(request, 'pokemon/detail.html', context)
+
 
 @login_required
 def favorites_index(request):
@@ -173,14 +177,20 @@ def update_shiny(request):
 
 def find_products(request, name):
     profile = Profile.objects.get(user_id=request.user.id)
+    profile_id = Profile.objects.get(user_id=request.user.id).id
+    wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
+    images = []
+    urls = []
+    is_wishlist_items = []
+    products = []
+
     url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-
     divs = soup.find_all('div')
-    images = []
-    urls = []  
+
     for div in divs:
+        is_wishlist_item = False
         a_element = div.find('a')
         img_element = div.find('img')
         if a_element and img_element:
@@ -188,15 +198,30 @@ def find_products(request, name):
             url_param = a_element.get('href')
             images.append(image)
             urls.append(f"https://www.google.com{url_param}")
+            for item in wishlist_items:
+                if image == item.image:
+                    is_wishlist_item = True
+                    is_wishlist_items.append(is_wishlist_item)
+            if not is_wishlist_item:
+                    is_wishlist_item = False
+                    is_wishlist_items.append(is_wishlist_item)
+            product = {
+                'image': image,
+                'url': url,
+                'is_wishlist_item': is_wishlist_item,
+            }
+            products.append(product)
 
-    images_and_urls = list(zip(images, urls))
-    filtered_list = images_and_urls[1::3]
-    filtered_list_20 = filtered_list[:20]
+    filtered_list = products[1::3]
+    if len(filtered_list) < 24:
+        filtered_list_20 = filtered_list[:len(filtered_list) - 6]
+    else:    
+        filtered_list_20 = filtered_list[:20]
 
     context = {
         'name': name,
-        'images_and_urls': filtered_list_20,
         'profile': profile
+        'items': filtered_list_20,
     }
     return render(request, 'pokemon/products.html', context)
 
@@ -225,7 +250,7 @@ def find_more_products(request, name):
             urls.append(f"https://www.google.com{url_param}")
             for item in wishlist_items:
                 if image == item.image:
-                    is_wishlist_item = True
+                    is_wishlist_item = item.id
                     is_wishlist_items.append(is_wishlist_item)
             if not is_wishlist_item:
                     is_wishlist_item = False
@@ -233,7 +258,7 @@ def find_more_products(request, name):
             product = {
                 'image': image,
                 'url': url,
-                'is_wishlist_item': True,
+                'is_wishlist_item': is_wishlist_item,
             }
             products.append(product)
 
@@ -245,8 +270,8 @@ def find_more_products(request, name):
 
     context = {
         'name': name,
-        'images_and_urls': filtered_list_20,
         'profile': profile
+        'items': filtered_list_20,
     }
     return render(request, 'pokemon/products.html', context)
 
@@ -270,6 +295,8 @@ def remove_wishlist_item(request, wishlist_id):
     profile = get_object_or_404(Profile, id=profile_id)
     if profile.user != request.user:
         return redirect('/')
+    Wishlist.objects.get(id=wishlist_id).delete()
+
     return redirect(request.META['HTTP_REFERER'])
 
 
