@@ -11,7 +11,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Profile, Favorite, Photo, Wishlist
-from .utils import POKEMON
+from .utils import POKEMON, POKEMON_TYPES, get_evolution_chain
 from bs4 import BeautifulSoup
 import random
 import requests
@@ -71,6 +71,10 @@ def search(request):
         dex_num = json["id"]
         types = [type_data["type"]["name"] for type_data in json["types"]]
         image = json["sprites"]["other"]["official-artwork"]["front_default"]
+        abilities = []
+        for ability_data in json['abilities']:
+            ability_name = ability_data['ability']['name']
+            abilities.append(ability_name)
     else:
         error_msg = "No Results"
 
@@ -79,6 +83,8 @@ def search(request):
             'profile': profile
         })
 
+    evolution_chain = get_evolution_chain(name)
+
     species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
     species_response = requests.get(species_url)
 
@@ -86,26 +92,60 @@ def search(request):
         species_json = species_response.json()
         flavor_text_entries = species_json["flavor_text_entries"]
         english_description = ""
-        for entry in flavor_text_entries:
-            if entry["language"]["name"] == "en":
-                english_description = entry["flavor_text"]
-                break
-        else:
-            error_msg = "No Results"
+        if len(flavor_text_entries) > 0:
+            for entry in flavor_text_entries:
+                if entry["language"]["name"] == "en":
+                    english_description = entry["flavor_text"]
+                    english_description = english_description.replace('', ' ')
+                    break
+            else:
+                error_msg = "No Results"
 
-            return render(request, '404.html', {
-                "error_msg": error_msg,
-                'profile': profile
-            })
+                return render(request, '404.html', {
+                    "error_msg": error_msg,
+                    'profile': profile
+                })
     
+    type_colors = []
+    for type in types:
+        type_color = POKEMON_TYPES[type.lower()]
+        type_colors.append(type_color)
+    type_tuples = tuple(zip(types, type_colors))
+
+    type_url = "https://pokeapi.co/api/v2/type"
+    type_response = requests.get(type_url)
+    type_data = type_response.json()["results"]
+
+    weaknesses = {}
+    for pokemon_type in types:
+        for data in type_data:
+            if data["name"] == pokemon_type:
+                type_url = data["url"]
+                type_response = requests.get(type_url)
+                type_data_nested = type_response.json()
+
+                damage_relations = type_data_nested["damage_relations"]
+                for relation in damage_relations["double_damage_from"]:
+                    weakness_type = relation["name"]
+                    if weakness_type in weaknesses:
+                        weaknesses[weakness_type] += 1
+                    else:
+                        weaknesses[weakness_type] = 1
+
+    weakness_colors = []
+    for weakness, effective in weaknesses.items():
+        weakness_color = POKEMON_TYPES[weakness]
+        weakness_colors.append(weakness_color)
+    weakness_info_list = [(weakness, value * 2, color) for weakness, value, color in zip(weaknesses.keys(), weaknesses.values(), weakness_colors)]
     name = next((key for key, val in POKEMON.items() if val == name), None)
     context = {
         'name': name,
         'image': image,
         'dex_num': dex_num,
-        'types': types,
+        'types': type_tuples,
+        'weaknesses': weakness_info_list,
         'description': english_description,
-
+        'abilities': abilities,
         'is_favorite': any(name == favorite.name for favorite in favorites),
         'profile': profile
     }
@@ -220,7 +260,7 @@ def find_products(request, name):
 
     context = {
         'name': name,
-        'profile': profile
+        'profile': profile,
         'items': filtered_list_20,
     }
     return render(request, 'pokemon/products.html', context)
@@ -270,7 +310,7 @@ def find_more_products(request, name):
 
     context = {
         'name': name,
-        'profile': profile
+        'profile': profile,
         'items': filtered_list_20,
     }
     return render(request, 'pokemon/products.html', context)
