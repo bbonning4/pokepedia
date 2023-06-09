@@ -349,10 +349,21 @@ h1 {
     max-height: 750px;
 }
 
+#shinytoggle {
+  position: absolute;
+  top: -108.5px;
+  left: -45px;
+}
+
 #fav, #unfav {
   position: absolute;
   top: 29.5px;
   left: -45px;
+}
+
+#shinytoggle, #shinytoggle > img {
+  height: 35px;
+  width: 35px;
 }
 
 .evolution {
@@ -386,6 +397,25 @@ h1 {
     border: 2px solid rgb(5, 37, 21);
     max-width: 100%;
     max-height: 100%;
+}
+
+.fav-btn-show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: transparent;
+    cursor: pointer;
+    outline: none;
+    margin-top: 70%;
+    border: 1px solid rgb(5, 37, 21);
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.fav-btn-show:hover {
+  transform: scale(1.05);
+  background-color: rgb(237, 237, 237);
 }
 
 .fav-btn img {
