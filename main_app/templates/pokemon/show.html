@@ -3,27 +3,31 @@
 {% block content %}
 <div class="detail-page">
     <div class="left-detail">
-        <h4>#{{ dex_num }}</h4>
-        <h4>{{ name }}</h4>
-        <div class="description">
-            {{ description }}
-        </div>
+        <h4 style="font-size: 20px; margin: 0;">#{{ dex_num }}</h4>
+        <h4 style="font-size: 48px; margin-top: 0;">{{ name.upper }}</h4>
         <form action="{% url 'update_shiny' %}" method="POST">
             {% csrf_token %}
-            <button type="submit" name="shiny" class="fav-btn">
+            <button id="shinytoggle" type="submit" name="shiny" class="fav-btn-show">
                 <input type="hidden" name="name" value="{{ name }}">
                 <img src="https://cdn-icons-png.flaticon.com/256/2267/2267359.png" alt="shiny">
             </button>
         </form>
+        <div class="description">
+            {{ description }}
+        </div>
+
+        <form action="{% url 'products' name %}" method="GET">
+            <input style="margin-top: 60px;" type="submit" value="View products related to {{ name }}!" class="btn">
+        </form>
     </div>
     <div class="right-detail">
-        <h4>Types:</h4>
+        <h4 class="details-title">Types:</h4>
         {% for type, color in types %}
-        <h4 id="type" style="background-color: {{ color }}">{{ type }}</h4>
+        <h4 class="details-info" id="type" style="background-color: {{ color }}">{{ type.upper }}</h4>
         {% endfor %}
-        <h4>Weaknesses</h4>
+        <h4 class="details-title">Weaknesses</h4>
         {% for weakness, value, color in weaknesses %}
-        <h4 id="weakness" style="background-color: {{ color }}">{{ value }}x{{ weakness }}</h4>
+            <h4 class="details-info" id="weakness" style="background-color: {{ color }}">{{ value }}x{{ weakness.upper }}</h4>
         {% endfor %}
     </div>
     <div class="detail-img">
@@ -32,15 +36,15 @@
     <div class="evolution">
         <h4>Abilities: </h4>
         {% for ability in abilities %}
-        <a href="https://bulbapedia.bulbagarden.net/wiki/{{ ability }}_(Ability)" target="_blank">
-            <h4>&nbsp;&nbsp;{{ ability|title }}</h4>
-        </a><br>
+            <a href="https://bulbapedia.bulbagarden.net/wiki/{{ ability }}_(Ability)" target="_blank">
+                <h4>&nbsp;&nbsp;{{ ability|title }}</h4>
+            </a><br>
         {% endfor %}
-        <form action="{% url 'products' name %}" method="GET">
-            <input type="submit" value="View products related to {{ name }}!" class="btn">
-        </form>
     </div>
-    
+
+
+    <div class="bottom-right">
+    </div>
 </div>
-</div>
+
 {% endblock %}
