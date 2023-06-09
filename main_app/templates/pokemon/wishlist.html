@@ -2,31 +2,10 @@
 
 {% block content %}
 
-<style>
-  .image-container {
-    position: relative;
-    display: inline-block;
-  }
-  
-  .favorite-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1;
-    background-color: gold;
-    border: 2px solid black;
-    padding: 5px;
-    cursor: pointer;
-  }
-
-</style>
-
-{% if wishlist_items|length == 0 %}
-<h1>No items, yet!</h1>
-{% endif %}
+{%  %}
 
 {% for wishlist_item in wishlist_items %}
-<div class="image-container">
+<div class="wishlist-image-container">
     <a href="{{ wishlist_item.url }}" target="_blank">
         <img src="{{ wishlist_item.image }}" alt="Product Image">
     </a>

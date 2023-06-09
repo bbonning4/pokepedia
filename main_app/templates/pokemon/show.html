@@ -5,7 +5,9 @@
     <div class="left-detail">
         <h4>POKEDEX #</h4>
         <h4>{{ favorite.name }}</h4>
-        <h5>DESCRIPTION</h5>
+        <div class="description">
+            DESCRIPTION i am so tired i really wanna go to sleep omg well here we go
+          </div>
         <form action="{% url 'update_shiny' %}" method="POST">
             {% csrf_token %}
             <button type="submit" name="shiny" class="fav-btn">
