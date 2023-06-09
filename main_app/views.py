@@ -18,8 +18,12 @@ import requests
 
 # Create your views here.
 def home(request):
+    profile = Profile.objects.get(user_id=request.user.id)
     error_msg = ""
-    return render(request, 'home.html', {'error_msg': error_msg})
+    return render(request, 'home.html', {
+        'error_msg': error_msg,
+        'profile': profile
+    })
 
 def signup(request):
     error_message = ''
@@ -44,35 +48,77 @@ def signup(request):
     return render(request, 'registration/signup.html', context)  
 
 def search(request):
+    profile = Profile.objects.get(user_id=request.user.id)
     profile_id = Profile.objects.get(user_id=request.user.id).id
     favorites = Favorite.objects.filter(profile_id=profile_id)
-    pokemon_search = request.GET.get('pokemon_name')
+    pokemon_name = request.GET.get('pokemon_name')
+    #initialize for when a dex number is used
+    dex_num = pokemon_name
     for key in POKEMON:
-        if key.lower() == pokemon_search.lower():
+        if key.lower() == pokemon_name.lower():
             pokemon_name = POKEMON[key]
-            name = key
-
-    url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name}"
+            url_param = pokemon_name
+            break
+        else:
+            url_param = dex_num
+        
+    url = f"https://pokeapi.co/api/v2/pokemon/{url_param}"
     response = requests.get(url)
+
     if response.status_code == 200:
         json = response.json()
-        # name = json["name"].capitalize()
+        name = json["forms"][0]["name"]
+        dex_num = json["id"]
+        types = [type_data["type"]["name"] for type_data in json["types"]]
         image = json["sprites"]["other"]["official-artwork"]["front_default"]
     else:
         error_msg = "No Results"
-        return render(request, 'home.html', {"error_msg": error_msg})
+        return render(request, '404.html', {
+            "error_msg": error_msg,
+            'profile': profile
+        })
+    
+    species_url = f"https://pokeapi.co/api/v2/pokemon-species/{name}"
+    species_response = requests.get(species_url)
+
+    if species_response.status_code == 200:
+        species_json = species_response.json()
+        flavor_text_entries = species_json["flavor_text_entries"]
+        english_description = ""
+        for entry in flavor_text_entries:
+            if entry["language"]["name"] == "en":
+                english_description = entry["flavor_text"]
+                break
+        else:
+            error_msg = "No Results"
+            return render(request, '404.html', {
+                "error_msg": error_msg,
+                'profile': profile
+            })
+    
+    name = next((key for key, val in POKEMON.items() if val == name), None)
     context = {
         'name': name,
-        'is_favorite': any(name == favorite.name for favorite in favorites)
+        'image': image,
+        'dex_num': dex_num,
+        'types': types,
+        'description': english_description,
+        'is_favorite': any(name == favorite.name for favorite in favorites),
+        'profile': profile
     }
-    return render(request, 'pokemon/detail.html', {'name': name, 'image': image, 'context': context})    
+    return render(request, 'pokemon/detail.html', context)
 
 @login_required
 def favorites_index(request):
     profile_id = Profile.objects.get(user_id=request.user.id).id
+    profile = Profile.objects.get(user_id=request.user.id)
     favorites = Favorite.objects.filter(profile_id=profile_id)
     favorites = sorted(favorites, key=lambda favorite: favorite.name)
-    return render(request, 'pokemon/favorites.html', {'favorites': favorites, 'profile_id': profile_id})
+    return render(request, 'pokemon/favorites.html', {
+        'favorites': favorites, 
+        'profile_id': profile_id,
+        'profile': profile
+    })
 
 @login_required
 def add_favorite(request):
@@ -93,13 +139,17 @@ def remove_favorite(request):
 
 @login_required
 def show_favorite(request, profile_id, favorite_id):
+    user_profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.get(id=favorite_id)
     # check if logged in user is the user for the profile_id being accessed
     profile = get_object_or_404(Profile, id=profile_id)
     if profile.user != request.user:
         return redirect('/')
     # is_logged_in = user.is_active and user.is_authenticated
-    return render(request, 'pokemon/show.html', {'favorite': favorite})
+    return render(request, 'pokemon/show.html', {
+        'favorite': favorite,
+        'profile': user_profile
+    })
 
 @login_required
 def update_shiny(request):
@@ -122,6 +172,7 @@ def update_shiny(request):
     return redirect(request.META['HTTP_REFERER'])
 
 def find_products(request, name):
+    profile = Profile.objects.get(user_id=request.user.id)
     url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
@@ -145,10 +196,12 @@ def find_products(request, name):
     context = {
         'name': name,
         'images_and_urls': filtered_list_20,
+        'profile': profile
     }
     return render(request, 'pokemon/products.html', context)
 
 def find_more_products(request, name):
+    profile = Profile.objects.get(user_id=request.user.id)
     profile_id = Profile.objects.get(user_id=request.user.id).id
     wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
     images = []
@@ -193,14 +246,17 @@ def find_more_products(request, name):
     context = {
         'name': name,
         'images_and_urls': filtered_list_20,
+        'profile': profile
     }
     return render(request, 'pokemon/products.html', context)
 
 def wishlist_index(request):
+    profile = Profile.objects.get(user_id=request.user.id)
     profile_id = Profile.objects.get(user_id=request.user.id).id
     wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
     context = {
         'wishlist_items': wishlist_items,
+        'profile': profile
     }
     return render(request, 'pokemon/wishlist.html', context)
 
@@ -254,11 +310,12 @@ def update_avatar(request, profile_id):
 def default(request, profile_id):
     if request.method == 'POST':
         id = request.POST.get('id')
-        print(profile_id)
         profile = Profile.objects.get(id=profile_id)
         profile.avatar = id
         profile.save()
-        print(profile.display_name)
-        print(id)
-        print('-----------------=====================____')
     return JsonResponse({'success': True})
+    # return redirect('update_profile', profile_id=profile_id)
+
+def custom_404_page(request, exception):
+    profile = Profile.objects.get(user_id=request.user.id)
+    return render(request, '404.html', {'profile': profile}, status=404)

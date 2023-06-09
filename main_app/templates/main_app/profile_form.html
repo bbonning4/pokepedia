@@ -6,7 +6,7 @@
 {% if profile.avatar|starts_with_http %}
     <img src="{{ profile.avatar }}" alt="Avatar" class="avatar">
 {% else %}
-    <img src="{% static 'defaults/' %}{{ profile.avatar }}.jpeg" alt="{{ profile.user.username }}'s Profile Picture" class="avatar">
+    <img src="{% static 'defaults/' %}{{ profile.avatar }}.jpeg" alt="Avatar" class="avatar">
 {% endif %}
 
 <form action="{% url 'update_avatar' profile.id %}" enctype="multipart/form-data" method="POST">
@@ -31,12 +31,12 @@
     <div class="carousel" data-csrf-token="{{ csrf_token }}" id="carousel">
         <a class="carousel-item" href="#mimikyu">
             <div class="carousel-container">
-                <img src="{% static 'defaults/mimikyu.jpg' %}" id="mimikyu" class="avatar-carousel" alt="Mimikyu">
+                <img src="{% static 'defaults/mimikyu.jpeg' %}" id="mimikyu" class="avatar-carousel" alt="Mimikyu">
             </div>
         </a>
         <a class="carousel-item" href="#eevee">
             <div class="carousel-container">
-                <img src="{% static 'defaults/eevee.jpg' %}" id="eevee" class="avatar-carousel" alt="Eevee">
+                <img src="{% static 'defaults/eevee.jpeg' %}" id="eevee" class="avatar-carousel" alt="Eevee">
             </div>
         </a>
         <a class="carousel-item" href="#gengar">
@@ -94,13 +94,13 @@
             },
             success: function(data) {
             if (data.success) {
-                alert('Changed');
+                // do nothing
             } else {
-                alert('Failed to add product to favorites.');
+                alert('Failed to save profile image.');
             }
             },
                 error: function() {
-                alert('Failed to add product to favorites.');
+                alert('Failed to save profile image.');
             }
         })
     })
