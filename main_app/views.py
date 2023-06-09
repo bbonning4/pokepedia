@@ -135,10 +135,7 @@ def search(request):
         else:
             error_msg = "No Results"
 
-            return render(request, '404.html', {
-                "error_msg": error_msg,
-                'profile': profile
-            })
+            return render(request, '404.html')
 
         species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
         species_response = requests.get(species_url)
@@ -154,10 +151,7 @@ def search(request):
             else:
                 error_msg = "No Results"
 
-                return render(request, '404.html', {
-                    "error_msg": error_msg,
-                    'profile': profile
-                })
+                return render(request, '404.html')
         
         name = next((key for key, val in POKEMON.items() if val == name), None)
         context = {
