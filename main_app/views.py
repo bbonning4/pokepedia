@@ -220,7 +220,7 @@ def find_products(request, name):
 
     context = {
         'name': name,
-        'profile': profile
+        'profile': profile,
         'items': filtered_list_20,
     }
     return render(request, 'pokemon/products.html', context)
@@ -270,7 +270,7 @@ def find_more_products(request, name):
 
     context = {
         'name': name,
-        'profile': profile
+        'profile': profile,
         'items': filtered_list_20,
     }
     return render(request, 'pokemon/products.html', context)

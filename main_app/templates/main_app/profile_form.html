@@ -9,7 +9,7 @@
     <img src="{% static 'defaults/' %}{{ profile.avatar }}.jpeg" alt="Avatar" class="avatar">
 {% endif %}
 
-<form action="{% url 'update_avatar' profile.id %}" enctype="multipart/form-data" method="POST">
+<form action="{% url 'update_avatar' profile.id %}" class="upload-img-form" enctype="multipart/form-data" method="POST">
     {% csrf_token %}
     <label for="img-upload"><i id="cloud-upload" class="material-icons">cloud_upload</i></label>
     <input type="file" name="photo-file" id="img-upload" hidden>
@@ -77,35 +77,35 @@
     // thanks hayk
     const carousel = document.getElementById('carousel')
     carousel.addEventListener('click', (event) => {
-        event.preventDefault()
-        let id = event.target.id
-        const csrfToken = carousel.getAttribute('data-csrf-token');
-        console.log(id)
-        $.ajax({
-            url: "{% url 'default' profile.id %}",
-            type: 'POST',
-            data: {
-                id: id,
-                csrfmiddlewaretoken: csrfToken
-            },
-            dataType: 'json',
-            headers: {
-                'X-CSRF-Token': csrfToken
-            },
-            success: function(data) {
-            if (data.success) {
-                // do nothing
-            } else {
-                alert('Failed to save profile image.');
-            }
-            },
-                error: function() {
-                alert('Failed to save profile image.');
-            }
-        })
+        if (event.target.className === 'avatar-carousel') {
+            event.preventDefault()
+            let id = event.target.id
+            const csrfToken = carousel.getAttribute('data-csrf-token');
+            console.log(id)
+            $.ajax({
+                url: "{% url 'default' profile.id %}",
+                type: 'POST',
+                data: {
+                    id: id,
+                    csrfmiddlewaretoken: csrfToken
+                },
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                },
+                success: function(data) {
+                if (data.success) {
+                    // do nothing
+                } else {
+                    alert('Failed to save profile image.');
+                }
+                },
+                    error: function() {
+                    alert('Failed to save profile image.');
+                }
+            })
+        }
     })
-
-
 
 </script>
 

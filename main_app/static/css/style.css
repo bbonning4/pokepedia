@@ -6,8 +6,6 @@
   --main-dark: #050b1e;
 }
 
-
-
 /* BODY DISPLAYS */
 
 body {
@@ -226,8 +224,12 @@ h1 {
   height: 300px;
   width: 300px;
   object-fit: cover;
+  border: 3px solid var(--main-dark);
 }
 
+.upload-img-form {
+  height: 15px;
+}
 
 .carousel-container {
   height: 200px;
@@ -434,5 +436,3 @@ h1 {
       width: 24%;
     }
   }
-
-

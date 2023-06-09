@@ -58,7 +58,7 @@
                         </div>
                     </li>
                     {% if user.is_authenticated %}
-                        <li><a href="{% url 'favorites' %}">Favorites</a></li>
+                    
                         <!-- Dropdown Trigger -->
                         <a class="dropdown-trigger right-align" href="#!" data-target="dropdown1">
                             {% if profile.avatar|starts_with_http %}
@@ -71,7 +71,8 @@
                         <!-- Dropdown Structure -->
                         <ul id="dropdown1" class="dropdown-content dark-mode right-align">
                             <li><a href="{% url 'update_profile' request.user.profile.pk %}" class="white-text">Edit Profile</a></li>
-                            <li><a href="{% url 'favorites' %}" class="white-text">Placeholder</a></li>
+                            <li><a href="{% url 'favorites' %}" class="white-text">Favorites</a></li>
+                            <li><a href="{% url 'wishlist' %}" class="white-text">Wishlist</a></li>
                             <li class="divider"></li>
                             <li><a href="{% url 'logout' %}" class="white-text">Log Out</a></li>
                         </ul>
