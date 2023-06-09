@@ -21,15 +21,19 @@
 
 </style>
 
+{% if wishlist_items|length == 0 %}
+<h1>No items, yet!</h1>
+{% endif %}
+
 {% for wishlist_item in wishlist_items %}
 <div class="image-container">
-    <a href="{{ url }}" target="_blank">
-        <img src="{{ image }}" alt="Product Image">
+    <a href="{{ wishlist_item.url }}" target="_blank">
+        <img src="{{ wishlist_item.image }}" alt="Product Image">
     </a>
     <form action="{% url 'remove_wishlist_item' wishlist_item.id %}" method="POST">
         {% csrf_token %}
-        <input type="hidden" name="url" value="{{ url }}">
-        <input type="hidden" name="image" value="{{ image }}">
+        <input type="hidden" name="url" value="{{ wishlist_item.url }}">
+        <input type="hidden" name="image" value="{{ wishlist_item.image }}">
         <!--Need to change to a different icon-->
         <button class="favorite-button"></button>
     </form>
