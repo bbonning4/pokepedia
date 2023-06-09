@@ -6,20 +6,22 @@
         <h4 style="font-size: 20px; margin: 0;">#{{ dex_num }}</h4>
         <h4 style="font-size: 48px; margin-top: 0;">{{ name.upper }}</h4>
         <!-- Add Favorites -->
-        {% if is_favorite %}
-        <form id="remove_favorite" action="{% url 'remove_favorite' %}" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="name" value="{{ name }}">
-            <input type="hidden" name="image" value="{{ image }}">
-            <a id="unfav" class="favorite-button" href="javascript:{}" onclick="document.getElementById('remove_favorite').submit();"><i class="small material-icons">favorite</i></a>
-        </form>
-        {% else %}
-        <form id="add_favorite" action="{% url 'add_favorite' %}" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="name" value="{{ name }}">
-            <input type="hidden" name="image" value="{{ image }}">
-            <a id="fav" class="favorite-button" href="javascript:{}" onclick="document.getElementById('add_favorite').submit();"><i class="small material-icons">favorite_border</i></a>
-        </form>
+        {% if user.id %}
+            {% if is_favorite %}
+            <form id="remove_favorite" action="{% url 'remove_favorite' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="name" value="{{ name }}">
+                <input type="hidden" name="image" value="{{ image }}">
+                <a id="unfav" class="favorite-button" href="javascript:{}" onclick="document.getElementById('remove_favorite').submit();"><i class="small material-icons">favorite</i></a>
+            </form>
+            {% else %}
+            <form id="add_favorite" action="{% url 'add_favorite' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="name" value="{{ name }}">
+                <input type="hidden" name="image" value="{{ image }}">
+                <a id="fav" class="favorite-button" href="javascript:{}" onclick="document.getElementById('add_favorite').submit();"><i class="small material-icons">favorite_border</i></a>
+            </form>
+            {% endif %}
         {% endif %}
         <div class="description">
             {{ description }}
