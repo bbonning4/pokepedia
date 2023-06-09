@@ -86,8 +86,8 @@ def search(request):
                 'profile': profile
             })
 
-        species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
-        species_response = requests.get(species_url)
+    species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
+    species_response = requests.get(species_url)
 
     if species_response.status_code == 200:
         species_json = species_response.json()
@@ -98,7 +98,6 @@ def search(request):
                 if entry["language"]["name"] == "en":
                     english_description = entry["flavor_text"]
                     english_description = english_description.replace('', ' ')
-
                     break
             else:
                 error_msg = "No Results"
@@ -203,7 +202,6 @@ def search(request):
             'description': english_description,
         }
         return render(request, 'pokemon/detail.html', context)
-n
 
 
 @login_required
@@ -237,17 +235,111 @@ def remove_favorite(request):
 
 @login_required
 def show_favorite(request, profile_id, favorite_id):
-    user_profile = Profile.objects.get(user_id=request.user.id)
+    # user_profile = Profile.objects.get(user_id=request.user.id)
     favorite = Favorite.objects.get(id=favorite_id)
     # check if logged in user is the user for the profile_id being accessed
     profile = get_object_or_404(Profile, id=profile_id)
     if profile.user != request.user:
         return redirect('/')
-    # is_logged_in = user.is_active and user.is_authenticated
-    return render(request, 'pokemon/show.html', {
-        'favorite': favorite,
-        'profile': user_profile
-    })
+    
+    image = favorite.image
+    pokemon_name = favorite.name
+    is_shiny = favorite.is_shiny
+
+    profile = Profile.objects.get(user_id=request.user.id)
+    
+    for key in POKEMON:
+        if key.lower() == pokemon_name.lower():
+            name = POKEMON[key]
+            url_param = name
+            break
+
+    url = f"https://pokeapi.co/api/v2/pokemon/{url_param}"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        json = response.json()
+        name = json["forms"][0]["name"]
+        dex_num = json["id"]
+        types = [type_data["type"]["name"] for type_data in json["types"]]
+        abilities = []
+        for ability_data in json['abilities']:
+            ability_name = ability_data['ability']['name']
+            abilities.append(ability_name)
+    else:
+        error_msg = "No Results"
+
+        return render(request, '404.html', {
+            "error_msg": error_msg,
+            'profile': profile
+        })
+
+    species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
+    species_response = requests.get(species_url)
+
+    if species_response.status_code == 200:
+        species_json = species_response.json()
+        flavor_text_entries = species_json["flavor_text_entries"]
+        english_description = ""
+        if len(flavor_text_entries) > 0:
+            for entry in flavor_text_entries:
+                if entry["language"]["name"] == "en":
+                    english_description = entry["flavor_text"]
+                    english_description = english_description.replace('', ' ')
+                    break
+            else:
+                error_msg = "No Results"
+
+                return render(request, '404.html', {
+                    "error_msg": error_msg,
+                    'profile': profile
+                })
+
+    type_colors = []
+    for type in types:
+        type_color = POKEMON_TYPES[type.lower()]
+        type_colors.append(type_color)
+    type_tuples = tuple(zip(types, type_colors))
+
+    type_url = "https://pokeapi.co/api/v2/type"
+    type_response = requests.get(type_url)
+    type_data = type_response.json()["results"]
+
+    weaknesses = {}
+    for pokemon_type in types:
+        for data in type_data:
+            if data["name"] == pokemon_type:
+                type_url = data["url"]
+                type_response = requests.get(type_url)
+                type_data_nested = type_response.json()
+
+                damage_relations = type_data_nested["damage_relations"]
+                for relation in damage_relations["double_damage_from"]:
+                    weakness_type = relation["name"]
+                    if weakness_type in weaknesses:
+                        weaknesses[weakness_type] += 1
+                    else:
+                        weaknesses[weakness_type] = 1
+
+    weakness_colors = []
+    for weakness, effective in weaknesses.items():
+        weakness_color = POKEMON_TYPES[weakness]
+        weakness_colors.append(weakness_color)
+    weakness_info_list = [(weakness, value * 2, color) for weakness, value, color in zip(weaknesses.keys(), weaknesses.values(), weakness_colors)]
+    name = next((key for key, val in POKEMON.items() if val == name), None)
+    context = {
+        'name': name,
+        'image': image,
+        'dex_num': dex_num,
+        'types': type_tuples,
+        'weaknesses': weakness_info_list,
+        'description': english_description,
+        'abilities': abilities,
+        'is_shiny': is_shiny,
+        'profile': profile,
+    }
+    return render(request, 'pokemon/show.html', context)
+
 
 @login_required
 def update_shiny(request):

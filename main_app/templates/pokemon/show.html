@@ -3,11 +3,11 @@
 {% block content %}
 <div class="detail-page">
     <div class="left-detail">
-        <h4>POKEDEX #</h4>
-        <h4>{{ favorite.name }}</h4>
+        <h4>#{{ dex_num }}</h4>
+        <h4>{{ name }}</h4>
         <div class="description">
-            DESCRIPTION i am so tired i really wanna go to sleep omg well here we go
-          </div>
+            {{ description }}
+        </div>
         <form action="{% url 'update_shiny' %}" method="POST">
             {% csrf_token %}
             <button type="submit" name="shiny" class="fav-btn">
@@ -15,35 +15,35 @@
                 <img src="https://cdn-icons-png.flaticon.com/256/2267/2267359.png" alt="shiny">
             </button>
         </form>
-        <!-- <form action="{% url 'remove_favorite' %}" method="POST" class="remove-fav-btn">
-            {% csrf_token %}
-            <input type="hidden" name="name" value="{{ favorite.name }}">
-            <input type="hidden" name="image" value="{{ favorite.image }}">
-            <input type="submit" value="Remove Favorite" class="btn">
-        </form> -->
     </div>
+    <form action="{% url 'update_shiny' %}" method="POST">
+        {% csrf_token %}
+    </form>
     <div class="right-detail">
-        <h4>TYPES</h4>
-        <h4>WEAKNESSES</h4>
+        <h4>Types:</h4>
+        {% for type, color in types %}
+        <h4 id="type" style="background-color: {{ color }}">{{ type }}</h4>
+        {% endfor %}
+        <h4>Weaknesses</h4>
+        {% for weakness, value, color in weaknesses %}
+        <h4 id="weakness" style="background-color: {{ color }}">{{ value }}x{{ weakness }}</h4>
+        {% endfor %}
     </div>
     <div class="detail-img">
-        <img src="{{ favorite.image }}" alt="Image of {{ favorite.name }}">
+        <img src="{{ image }}" alt="Image of {{ name }}">
     </div>
     <div class="evolution">
-        <h3>EVOLUTION LINE</h3>
+        <h4>Abilities: </h4>
+        {% for ability in abilities %}
+        <a href="https://bulbapedia.bulbagarden.net/wiki/{{ ability }}_(Ability)" target="_blank">
+            <h4>&nbsp;&nbsp;{{ ability|title }}</h4>
+        </a><br>
+        {% endfor %}
+        <form action="{% url 'products' name %}" method="GET">
+            <input type="submit" value="View products related to {{ name }}!" class="btn">
+        </form>
     </div>
-
-    <form action="{% url 'products' favorite.name %}" method="GET">
-        <input type="submit" value="View products related to this Pokemon!" class="btn-fav">
-    </form>
+    
 </div>
-    
-    
-  
-
-
-<!-- <h1>{{ favorite.name }}</h1> -->
-<!-- <img src="{{ favorite.image }}" alt="Image of {{ favorite.name }}"> -->
-
-
+</div>
 {% endblock %}
