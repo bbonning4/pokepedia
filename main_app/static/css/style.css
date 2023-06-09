@@ -8,7 +8,6 @@
 
 
 
-
 /* BODY DISPLAYS */
 
 body {
@@ -166,6 +165,22 @@ h1 {
     text-align: center;
 }
 
+#search {
+    background: transparent;
+    padding-left: 50px;
+    color: #fff;
+    border-bottom: 1px solid #fff;
+    box-shadow: none;
+    outline: none;
+    width: 700px;
+    margin: 30px auto;
+}
+
+#home-search-icon {
+    margin-top: 10px;
+    margin-left: 210px;
+}
+
 
 /* ======- Nav Bar -====== */
 .nav-wrapper {
@@ -180,6 +195,27 @@ h1 {
   height: 45px;
   width: 45px;
   object-fit: cover;
+}
+
+#search-nav {
+    background-color: transparent;
+    width: 150px;
+    color: white;
+}
+
+#nav-icon {
+    margin-top: -15px; 
+    margin-left: -5px;
+    color: white;
+}
+
+
+#search-nav:not(:focus) {
+    border-bottom: none;
+}
+
+#search-nav:focus {
+    border-bottom: 1px solid #fff;
 }
 /* ======- Edit Profile Page  -====== */
 .avatar {
@@ -200,6 +236,18 @@ h1 {
   height: 175px;
   width: 175px;
   object-fit: cover;
+}
+
+#img-upload {
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+    color: black;
+}
+
+#cloud-upload {
+    margin-top: -15px;
+    height: 200px;
 }
 
 /* show and detail page */

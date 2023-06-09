@@ -2,6 +2,7 @@ import os # used to access .env variables
 import uuid # helpful for generating random strings
 import boto3 # AWS SDK python library
 from typing import Any, Dict
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
@@ -248,3 +249,16 @@ def update_avatar(request, profile_id):
             print('An error occured uploading file to S3')
             print(e)
     return redirect('update_profile', pk=profile_id)
+
+@login_required
+def default(request, profile_id):
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        print(profile_id)
+        profile = Profile.objects.get(id=profile_id)
+        profile.avatar = id
+        profile.save()
+        print(profile.display_name)
+        print(id)
+        print('-----------------=====================____')
+    return JsonResponse({'success': True})
