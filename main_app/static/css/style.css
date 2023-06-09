@@ -349,9 +349,15 @@ h1 {
     max-height: 750px;
 }
 
-#fav, #unfav, #shinytoggle {
+#shinytoggle {
   position: absolute;
   top: -108.5px;
+  left: -45px;
+}
+
+#fav, #unfav {
+  position: absolute;
+  top: 29.5px;
   left: -45px;
 }
 
