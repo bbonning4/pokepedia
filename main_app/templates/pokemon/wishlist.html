@@ -2,34 +2,15 @@
 
 {% block content %}
 
-<style>
-  .image-container {
-    position: relative;
-    display: inline-block;
-  }
-  
-  .favorite-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1;
-    background-color: gold;
-    border: 2px solid black;
-    padding: 5px;
-    cursor: pointer;
-  }
-
-</style>
-
 {% for wishlist_item in wishlist_items %}
-<div class="image-container">
-    <a href="{{ url }}" target="_blank">
-        <img src="{{ image }}" alt="Product Image">
+<div class="wishlist-image-container">
+    <a href="{{ wishlist_item.url }}" target="_blank">
+        <img src="{{ wishlist_item.image }}" alt="Product Image">
     </a>
     <form action="{% url 'remove_wishlist_item' wishlist_item.id %}" method="POST">
         {% csrf_token %}
-        <input type="hidden" name="url" value="{{ url }}">
-        <input type="hidden" name="image" value="{{ image }}">
+        <input type="hidden" name="url" value="{{ wishlist_item.url }}">
+        <input type="hidden" name="image" value="{{ wishlist_item.image }}">
         <!--Need to change to a different icon-->
         <button class="favorite-button"></button>
     </form>
