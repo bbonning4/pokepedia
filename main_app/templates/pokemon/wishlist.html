@@ -2,6 +2,10 @@
 
 {% block content %}
 
+{% if wishlist_items|length == 0 %}
+<h1>No items, yet!</h1>
+{% endif %}
+
 {% for wishlist_item in wishlist_items %}
 <div class="wishlist-image-container">
     <a href="{{ wishlist_item.url }}" target="_blank">

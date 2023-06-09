@@ -3,14 +3,16 @@
 {% block content %}
 <div class="detail-page">
 <div class="left-detail">
-    <h4>POKEDEX #</h4>
+    <h4>#{{ dex_num }}</h4>
     <h4>{{ name }}</h4>
     <div class="description">
-        DESCRIPTION i am so tired i really wanna go to sleep omg well here we go
-      </div>
+        {{ description }}
+    </div>
 </div>
 <div class="right-detail">
-    <h4>TYPES</h4>
+    {% for type in types %}
+    <h4 id="type">{{ type }}</h4>
+    {% endfor %}
     <h4>WEAKNESSES</h4>
 </div>
 <div class="detail-img">
@@ -23,24 +25,24 @@
 
 <div class="bottom-right">
 <!-- Add Favorites -->
-{% if context.is_favorite %}
-<form action="{% url 'remove_favorite' %}" method="POST">
+{% if is_favorite %}
+<form id="remove_favorite" action="{% url 'remove_favorite' %}" method="POST">
     {% csrf_token %}
     <input type="hidden" name="name" value="{{ name }}">
     <input type="hidden" name="image" value="{{ image }}">
-    <input type="submit" value="Remove Favorite" class="btn">
+    <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('remove_favorite').submit();"><i class="material-icons">favorite</i></a>
 </form>
 {% else %}
-<form action="{% url 'add_favorite' %}" method="POST">
+<form id="add_favorite" action="{% url 'add_favorite' %}" method="POST">
     {% csrf_token %}
     <input type="hidden" name="name" value="{{ name }}">
     <input type="hidden" name="image" value="{{ image }}">
-    <input type="submit" value="Favorite" class="btn">
+    <a class="favorite-button" href="javascript:{}" onclick="document.getElementById('add_favorite').submit();"><i class="material-icons">favorite_border</i></a>
 </form>
 {% endif %}
 
 <form action="{% url 'products' name %}" method="GET">
-    <input type="submit" value="View products related to this Pokemon!" class="btn">
+    <input type="submit" value="View products related to {{ name }}!" class="btn">
 </form>
 </div>
 </div>
