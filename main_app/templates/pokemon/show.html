@@ -23,11 +23,11 @@
     <div class="right-detail">
         <h4 class="details-title">Types:</h4>
         {% for type, color in types %}
-        <h4 class="details-info" id="type" style="background-color: {{ color }}">{{ type.upper }}</h4>
+        <h4 class="details-info {{ type }}" id="type">{{ type.upper }}</h4>
         {% endfor %}
         <h4 class="details-title">Weaknesses</h4>
         {% for weakness, value, color in weaknesses %}
-            <h4 class="details-info" id="weakness" style="background-color: {{ color }}">{{ value }}x{{ weakness.upper }}</h4>
+            <h4 class="details-info {{ weakness }}" id="weakness">{{ value }}x{{ weakness.upper }}</h4>
         {% endfor %}
     </div>
     <div class="detail-img">
