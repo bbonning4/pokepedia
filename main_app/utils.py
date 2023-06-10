@@ -1,5 +1,3 @@
-import requests
-
 POKEMON = {   'Abomasnow': 'abomasnow',
     'Abra': 'abra',
     'Absol': 'absol',
@@ -2044,40 +2042,3 @@ POKEMON_TYPES = {
     'steel': '#B8B8D0',
     'water': '#6890F0',
 }
-
-def get_evolution_chain(pokemon_name):
-    # Retrieve Pokemon species data
-    response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{pokemon_name}")
-    if response.status_code != 200:
-        print("Error occurred while retrieving Pokemon species data.")
-        return None
-
-    species_data = response.json()
-
-    # Retrieve evolution chain URL
-    evolution_chain_url = species_data['evolution_chain']['url']
-
-    # Retrieve evolution chain data
-    response = requests.get(evolution_chain_url)
-    if response.status_code != 200:
-        print("Error occurred while retrieving evolution chain data.")
-        return None
-
-    evolution_chain_data = response.json()
-
-    # Parse evolution chain data
-    evolution_line = []
-    current_evolution = evolution_chain_data['chain']
-
-    while True:
-        pokemon_species_name = current_evolution['species']['name']
-        evolution_details = current_evolution.get('evolution_details', [])
-
-        evolution_line.append((pokemon_species_name, evolution_details))
-
-        if not current_evolution['evolves_to']:
-            break
-
-        current_evolution = current_evolution['evolves_to'][0]
-
-    return evolution_line

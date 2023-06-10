@@ -40,6 +40,10 @@
         {% for weakness, value, color in weaknesses %}
             <h4 class="details-info" id="weakness" style="background-color: {{ color }}">{{ value }}x{{ weakness.upper }}</h4>
         {% endfor %}
+        <h4 class="details-title">Resistances</h4>
+        {% for resistance, value, color in resistances %}
+            <h4 class="details-info" id="resistance" style="background-color: {{ color }}"><sup>1</sup>&frasl;<sub>{{ value }}</sub>x{{ resistance.upper }}</h4>
+        {% endfor %}
     </div>
     <div class="detail-img">
         <img src="{{ image }}" alt="Image of {{ name }}">
