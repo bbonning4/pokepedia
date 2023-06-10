@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .details-info-wrapper {
+        display: inline-block;
+    }
+</style>
+
 <div class="detail-page">
     <div class="left-detail">
         <h4 style="font-size: 20px; margin: 0;">#{{ dex_num }}</h4>
@@ -33,17 +39,35 @@
     </div>
     <div class="right-detail">
         <h4 class="details-title">Types:</h4>
-        {% for type, color in types %}
-        <h4 class="details-info" id="type" style="background-color: {{ color }}">{{ type.upper }}</h4>
-        {% endfor %}
-        <h4 class="details-title">Weaknesses</h4>
-        {% for weakness, value, color in weaknesses %}
-            <h4 class="details-info" id="weakness" style="background-color: {{ color }}">{{ value }}x{{ weakness.upper }}</h4>
-        {% endfor %}
-        <h4 class="details-title">Resistances</h4>
-        {% for resistance, value, color in resistances %}
-            <h4 class="details-info" id="resistance" style="background-color: {{ color }}"><sup>1</sup>&frasl;<sub>{{ value }}</sub>x{{ resistance.upper }}</h4>
-        {% endfor %}
+        <div class="details-row">
+            {% for type, color, text_color in types %}
+            <div class="details-info-wrapper">
+                <h4 class="details-info {{ type }}" id="type">{{ type.upper }}</h4>
+            </div>
+            {% endfor %}
+        </div>
+        <h4 class="details-title">Weaknesses:</h4>
+        <div class="details-row">
+            {% for weakness, value, color, text_color in weaknesses %}
+            <div class="details-info-wrapper">
+                <h4 class="details-info {{ weakness }}" id="weakness">{{ value }}x{{ weakness.upper }}</h4>
+            </div>
+            {% endfor %}
+        </div>
+        <h4 class="details-title">Resistances:</h4>
+        <div class="details-row">
+            {% for resistance, value, color, text_color in resistances %}
+            {% if value == 0 %}
+            <div class="details-info-wrapper">
+                <h4 class="details-info {{ resistance }}" id="resistance">IMMUNE {{ resistance.upper }}</h4>
+            </div>
+            {% else %}
+            <div class="details-info-wrapper">
+                <h4 class="details-info {{ resistance }}" id="resistance"><sup>1</sup>&frasl;<sub>{{ value }}</sub>x{{ resistance.upper }}</h4>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
     </div>
     <div class="detail-img">
         <img src="{{ image }}" alt="Image of {{ name }}">

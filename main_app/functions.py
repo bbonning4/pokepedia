@@ -95,11 +95,9 @@ def search_function(request):
                     }
                     return context
 
-    type_colors = []
-    for type in types:
-        type_color = POKEMON_TYPES[type.lower()]
-        type_colors.append(type_color)
-    type_tuples = tuple(zip(types, type_colors))
+    type_colors = [POKEMON_TYPES[type][0] for type in types]
+    type_text_colors = [POKEMON_TYPES[type][1] for type in types]
+    type_tuples = tuple(zip(types, type_colors, type_text_colors))
 
     type_url = "https://pokeapi.co/api/v2/type"
     type_response = requests.get(type_url)
@@ -134,14 +132,25 @@ def search_function(request):
                             resistances[resistance_type] += 1
                         else:
                             resistances[resistance_type] = 1
+                for relation in damage_relations["no_damage_from"]:
+                    immunity_type = relation["name"]
+                    if immunity_type in weaknesses:
+                        del weaknesses[immunity_type]
+                    elif immunity_type in resistances:
+                        resistances[immunity_type] = 0
+                    else:
+                        resistances[immunity_type] = 0
+
 
     for weakness in weaknesses_to_remove:
         del weaknesses[weakness]
 
-    weakness_colors = [POKEMON_TYPES[weakness] for weakness in weaknesses]
-    resistance_colors = [POKEMON_TYPES[resistance] for resistance in resistances]
-    weakness_info_list = [(weakness, value*2, color) for weakness, value, color in zip(weaknesses.keys(), weaknesses.values(), weakness_colors)]
-    resist_info_list = [(resistance, value*2, color) for resistance, value, color in zip(resistances.keys(), resistances.values(), resistance_colors)]
+    weakness_colors = [POKEMON_TYPES[weakness][0] for weakness in weaknesses]
+    weakness_text_colors = [POKEMON_TYPES[weakness][1] for weakness in weaknesses]
+    resistance_colors = [POKEMON_TYPES[resistance][0] for resistance in resistances]
+    resistance_text_colors = [POKEMON_TYPES[resistance][1] for resistance in resistances]
+    weakness_info_list = [(weakness, value*2, color, text_color) for weakness, value, color, text_color in zip(weaknesses.keys(), weaknesses.values(), weakness_colors, weakness_text_colors)]
+    resist_info_list = [(resistance, value*2, color, text_color) for resistance, value, color, text_color in zip(resistances.keys(), resistances.values(), resistance_colors, resistance_text_colors)]
     name = next((key for key, val in POKEMON.items() if val == name), None)
     if request.user.id:
         context = {
