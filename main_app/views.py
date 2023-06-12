@@ -108,7 +108,8 @@ def update_shiny(request):
     if favorite.is_shiny == True:
         json = response.json()
         shiny_image = json["sprites"]["other"]["official-artwork"]["front_shiny"]
-        favorite.image = shiny_image
+        if shiny_image:
+            favorite.image = shiny_image
     else:
         json = response.json()
         not_shiny_image = json["sprites"]["other"]["official-artwork"]["front_default"]
@@ -179,7 +180,6 @@ def find_products(request, name):
 
 
 def find_more_products(request, name):
-    profile = Profile.objects.get(user_id=request.user.id)
     profile_id = Profile.objects.get(user_id=request.user.id).id
     wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
     images = []
