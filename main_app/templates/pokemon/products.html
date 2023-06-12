@@ -3,11 +3,12 @@
 {% block content %}
 
 <form action="{% url 'more_products' name %}" method="GET">
+    <input type="hidden" name="main_type" value="{{ main_type }}">
     <input type="submit" value="More Stuff!" class="btn">
 </form>
 
 {% for item in items %}
-<div class="products-image-container">
+<div class="products-image-container {{ main_type }}">
     <a href="{{ item.url }}" target="_blank">
         <img src="{{ item.image }}" alt="Product Image" class="product-image">
     </a>

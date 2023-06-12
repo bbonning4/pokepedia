@@ -34,6 +34,7 @@
         </div>
 
         <form action="{% url 'products' name %}" method="GET">
+            <input type="hidden" name="main_type" value="{{ main_type }}">
             <input style="margin-top: 60px;" type="submit" value="View products related to {{ name }}!" class="btn">
         </form>
     </div>

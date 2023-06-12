@@ -7,7 +7,7 @@
         <h4 style="font-size: 48px; margin-top: 0;">{{ name.upper }}</h4>
         <form action="{% url 'update_shiny' %}" method="POST">
             {% csrf_token %}
-            <button id="shinytoggle" type="submit" name="shiny" class="fav-btn-show">
+            <button id="shinytoggle" type="submit" name="shiny" class="fav-btn-show" title="Shiny!">
                 <input type="hidden" name="name" value="{{ name }}">
                 <img src="https://cdn-icons-png.flaticon.com/256/2267/2267359.png" alt="shiny">
             </button>

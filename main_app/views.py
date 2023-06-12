@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Profile, Favorite, Photo, Wishlist
 from .utils import POKEMON, POKEMON_TYPES
-from .functions import search_function, get_evolution_chain
+from .functions import search_function, show_favorite_function, get_evolution_chain
 from bs4 import BeautifulSoup
 import random
 import requests
@@ -63,16 +63,17 @@ def favorites_index(request):
     profile = Profile.objects.get(user_id=request.user.id)
     favorites = Favorite.objects.filter(profile_id=profile_id)
     favorites = sorted(favorites, key=lambda favorite: favorite.name)
-    return render(request, 'pokemon/favorites.html', {
+    context = {
         'favorites': favorites, 
         'profile_id': profile_id,
-        'profile': profile
-    })
+        'profile': profile,
+    }
+    return render(request, 'pokemon/favorites.html', context)
 
 @login_required
 def add_favorite(request):
     profile = Profile.objects.get(user_id=request.user.id)
-    favorite = Favorite.objects.create(name=request.POST.get('name'), image=request.POST.get('image'), profile=profile)
+    Favorite.objects.create(name=request.POST.get('name'), image=request.POST.get('image'), profile=profile)
     # Redirects to current page
     return redirect(request.META['HTTP_REFERER'])
 
@@ -88,110 +89,11 @@ def remove_favorite(request):
 
 @login_required
 def show_favorite(request, profile_id, favorite_id):
-    # user_profile = Profile.objects.get(user_id=request.user.id)
-    favorite = Favorite.objects.get(id=favorite_id)
-    # check if logged in user is the user for the profile_id being accessed
-    profile = get_object_or_404(Profile, id=profile_id)
-    if profile.user != request.user:
-        return redirect('/')
-    
-    image = favorite.image
-    pokemon_name = favorite.name
-    is_shiny = favorite.is_shiny
-
-    profile = Profile.objects.get(user_id=request.user.id)
-    
-    for key in POKEMON:
-        if key.lower() == pokemon_name.lower():
-            name = POKEMON[key]
-            url_param = name
-            break
-
-    url = f"https://pokeapi.co/api/v2/pokemon/{url_param}"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        json = response.json()
-        name = json["forms"][0]["name"]
-        dex_num = json["id"]
-        types = [type_data["type"]["name"] for type_data in json["types"]]
-        abilities = []
-        for ability_data in json['abilities']:
-            ability_name = ability_data['ability']['name']
-            abilities.append(ability_name)
+    context = show_favorite_function(request, profile_id, favorite_id)
+    if context["error"]:
+        return render(request, '404.html', context)
     else:
-        error_msg = "No Results"
-
-        return render(request, '404.html', {
-            "error_msg": error_msg,
-            'profile': profile
-        })
-
-    species_url = f"https://pokeapi.co/api/v2/pokemon-species/{dex_num}"
-    species_response = requests.get(species_url)
-
-    if species_response.status_code == 200:
-        species_json = species_response.json()
-        flavor_text_entries = species_json["flavor_text_entries"]
-        english_description = ""
-        if len(flavor_text_entries) > 0:
-            for entry in flavor_text_entries:
-                if entry["language"]["name"] == "en":
-                    english_description = entry["flavor_text"]
-                    english_description = english_description.replace('', ' ')
-                    break
-            else:
-                error_msg = "No Results"
-
-                return render(request, '404.html', {
-                    "error_msg": error_msg,
-                    'profile': profile
-                })
-
-    type_colors = []
-    for type in types:
-        type_color = POKEMON_TYPES[type.lower()]
-        type_colors.append(type_color)
-    type_tuples = tuple(zip(types, type_colors))
-
-    type_url = "https://pokeapi.co/api/v2/type"
-    type_response = requests.get(type_url)
-    type_data = type_response.json()["results"]
-
-    weaknesses = {}
-    for pokemon_type in types:
-        for data in type_data:
-            if data["name"] == pokemon_type:
-                type_url = data["url"]
-                type_response = requests.get(type_url)
-                type_data_nested = type_response.json()
-
-                damage_relations = type_data_nested["damage_relations"]
-                for relation in damage_relations["double_damage_from"]:
-                    weakness_type = relation["name"]
-                    if weakness_type in weaknesses:
-                        weaknesses[weakness_type] += 1
-                    else:
-                        weaknesses[weakness_type] = 1
-
-    weakness_colors = []
-    for weakness, effective in weaknesses.items():
-        weakness_color = POKEMON_TYPES[weakness]
-        weakness_colors.append(weakness_color)
-    weakness_info_list = [(weakness, value * 2, color) for weakness, value, color in zip(weaknesses.keys(), weaknesses.values(), weakness_colors)]
-    name = next((key for key, val in POKEMON.items() if val == name), None)
-    context = {
-        'name': name,
-        'image': image,
-        'dex_num': dex_num,
-        'types': type_tuples,
-        'weaknesses': weakness_info_list,
-        'description': english_description,
-        'abilities': abilities,
-        'is_shiny': is_shiny,
-        'profile': profile,
-    }
-    return render(request, 'pokemon/show.html', context)
+        return render(request, 'pokemon/show.html', context)
 
 
 @login_required
@@ -215,181 +117,126 @@ def update_shiny(request):
     return redirect(request.META['HTTP_REFERER'])
 
 def find_products(request, name):
+    profile_id = Profile.objects.get(user_id=request.user.id).id
+    wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
+    images = []
+    urls = []
+    is_wishlist_items = []
+    products = []
+
+    url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    divs = soup.find_all('div')
+
+    for div in divs:
+        is_wishlist_item = False
+        a_element = div.find('a')
+        img_element = div.find('img')
+        if a_element and img_element:
+            image = img_element.get('src')
+            url_param = a_element.get('href')
+            images.append(image)
+            urls.append(f"https://www.google.com{url_param}")
+            for item in wishlist_items:
+                if image == item.image:
+                    is_wishlist_item = item.id
+                    is_wishlist_items.append(is_wishlist_item)
+            if not is_wishlist_item:
+                    is_wishlist_item = False
+                    is_wishlist_items.append(is_wishlist_item)
+            product = {
+                'image': image,
+                'url': url,
+                'is_wishlist_item': is_wishlist_item,
+            }
+            products.append(product)
+
+    filtered_list = products[1::3]
+    if len(filtered_list) < 24:
+        filtered_list_20 = filtered_list[:len(filtered_list) - 6]
+    else:    
+        filtered_list_20 = filtered_list[:20]
+
+    main_type = request.GET.get('main_type')
+    print(main_type)
     if request.user.id:
         profile = Profile.objects.get(user_id=request.user.id)
-        profile_id = Profile.objects.get(user_id=request.user.id).id
-        wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
-        images = []
-        urls = []
-        is_wishlist_items = []
-        products = []
-
-        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        divs = soup.find_all('div')
-
-        for div in divs:
-            is_wishlist_item = False
-            a_element = div.find('a')
-            img_element = div.find('img')
-            if a_element and img_element:
-                image = img_element.get('src')
-                url_param = a_element.get('href')
-                images.append(image)
-                urls.append(f"https://www.google.com{url_param}")
-                for item in wishlist_items:
-                    if image == item.image:
-                        is_wishlist_item = item.id
-                        is_wishlist_items.append(is_wishlist_item)
-                if not is_wishlist_item:
-                        is_wishlist_item = False
-                        is_wishlist_items.append(is_wishlist_item)
-                product = {
-                    'image': image,
-                    'url': url,
-                    'is_wishlist_item': is_wishlist_item,
-                }
-                products.append(product)
-
-        filtered_list = products[1::3]
-        if len(filtered_list) < 24:
-            filtered_list_20 = filtered_list[:len(filtered_list) - 6]
-        else:    
-            filtered_list_20 = filtered_list[:20]
-
         context = {
             'name': name,
+            'main_type': main_type,
             'profile': profile,
             'items': filtered_list_20,
         }
-        return render(request, 'pokemon/products.html', context)
     else:
-        images = []
-        urls = []
-        is_wishlist_items = []
-        products = []
-
-        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        divs = soup.find_all('div')
-
-        for div in divs:
-            a_element = div.find('a')
-            img_element = div.find('img')
-            if a_element and img_element:
-                image = img_element.get('src')
-                url_param = a_element.get('href')
-                images.append(image)
-                urls.append(f"https://www.google.com{url_param}")
-                product = {
-                    'image': image,
-                    'url': url,
-                }
-                products.append(product)
-
-        filtered_list = products[1::3]
-        if len(filtered_list) < 24:
-            filtered_list_20 = filtered_list[:len(filtered_list) - 6]
-        else:    
-            filtered_list_20 = filtered_list[:20]
-
         context = {
             'name': name,
+            'main_type': main_type,
             'items': filtered_list_20,
         }
-        return render(request, 'pokemon/products.html', context)
+    return render(request, 'pokemon/products.html', context)
 
 
 
 def find_more_products(request, name):
+    profile = Profile.objects.get(user_id=request.user.id)
+    profile_id = Profile.objects.get(user_id=request.user.id).id
+    wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
+    images = []
+    urls = []
+    is_wishlist_items = []
+    products = []
+    random_page = random.randint(0, 500)
+    url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    divs = soup.find_all('div')
+
+    for div in divs:
+        is_wishlist_item = False
+        a_element = div.find('a')
+        img_element = div.find('img')
+        if a_element and img_element:
+            image = img_element.get('src')
+            url_param = a_element.get('href')
+            images.append(image)
+            urls.append(f"https://www.google.com{url_param}")
+            for item in wishlist_items:
+                if image == item.image:
+                    is_wishlist_item = item.id
+                    is_wishlist_items.append(is_wishlist_item)
+            if not is_wishlist_item:
+                    is_wishlist_item = False
+                    is_wishlist_items.append(is_wishlist_item)
+            product = {
+                'image': image,
+                'url': url,
+                'is_wishlist_item': is_wishlist_item,
+            }
+            products.append(product)
+
+    filtered_list = products[1::3]
+    if len(filtered_list) < 24:
+        filtered_list_20 = filtered_list[:len(filtered_list) - 6]
+    else:    
+        filtered_list_20 = filtered_list[:20]
+    
+    main_type = request.GET.get('main_type')
     if request.user.id:
         profile = Profile.objects.get(user_id=request.user.id)
-        profile_id = Profile.objects.get(user_id=request.user.id).id
-        wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
-        images = []
-        urls = []
-        is_wishlist_items = []
-        products = []
-        random_page = random.randint(0, 500)
-        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        divs = soup.find_all('div')
-
-        for div in divs:
-            is_wishlist_item = False
-            a_element = div.find('a')
-            img_element = div.find('img')
-            if a_element and img_element:
-                image = img_element.get('src')
-                url_param = a_element.get('href')
-                images.append(image)
-                urls.append(f"https://www.google.com{url_param}")
-                for item in wishlist_items:
-                    if image == item.image:
-                        is_wishlist_item = item.id
-                        is_wishlist_items.append(is_wishlist_item)
-                if not is_wishlist_item:
-                        is_wishlist_item = False
-                        is_wishlist_items.append(is_wishlist_item)
-                product = {
-                    'image': image,
-                    'url': url,
-                    'is_wishlist_item': is_wishlist_item,
-                }
-                products.append(product)
-
-        filtered_list = products[1::3]
-        if len(filtered_list) < 24:
-            filtered_list_20 = filtered_list[:len(filtered_list) - 6]
-        else:    
-            filtered_list_20 = filtered_list[:20]
-
         context = {
             'name': name,
+            'main_type': main_type,
             'profile': profile,
             'items': filtered_list_20,
         }
-        return render(request, 'pokemon/products.html', context)
     else:
-        images = []
-        urls = []
-        is_wishlist_items = []
-        products = []
-        random_page = random.randint(0, 500)
-        url = f"https://www.google.com/search?q={name}+pokemon+toy&tbm=shop&start={random_page}"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        divs = soup.find_all('div')
-
-        for div in divs:
-            is_wishlist_item = False
-            a_element = div.find('a')
-            img_element = div.find('img')
-            if a_element and img_element:
-                image = img_element.get('src')
-                url_param = a_element.get('href')
-                images.append(image)
-                urls.append(f"https://www.google.com{url_param}")
-                product = {
-                    'image': image,
-                    'url': url,
-                }
-                products.append(product)
-
-        filtered_list = products[1::3]
-        if len(filtered_list) < 24:
-            filtered_list_20 = filtered_list[:len(filtered_list) - 6]
-        else:    
-            filtered_list_20 = filtered_list[:20]
-
         context = {
             'name': name,
+            'main_type': main_type,
             'items': filtered_list_20,
         }
-        return render(request, 'pokemon/products.html', context)
+    return render(request, 'pokemon/products.html', context)
 
 
 
