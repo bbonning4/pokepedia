@@ -7,6 +7,10 @@
   --main-dark: #050b1e;
 }
 
+.dark-mode {
+  background-color: var(--main-dark);
+}
+
 /* type classes */
 .bug {
   background-color: #A8B820;
@@ -574,31 +578,56 @@ h1 {
 
   /* wishlist page */
 
+.wishlist-image-container {
+  position: relative;
+  display: inline-block;
+  width: 20%;
+  margin: 1% 1%;
+  box-sizing: border-box;
+  padding: 10px;
+  background-color: rgb(91, 91, 91);
+  color: rgb(255, 255, 255);
+  border-radius: 20px;
+}
 
+.favorite-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  padding: 5px;
+  cursor: pointer;
+  color: rgb(220, 24, 24);
+}
+
+@media (max-width: 576px) {
   .wishlist-image-container {
-    position: relative;
-    display: inline-block;
-    width: 20%;
-    margin: 1% 1%;
-    box-sizing: border-box;
-    padding: 10px;
-    background-color: rgb(91, 91, 91);
-    color: rgb(255, 255, 255);
-    border-radius: 20px;
+    width: 24%;
   }
-  
-  .favorite-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1;
-    padding: 5px;
-    cursor: pointer;
-    color: rgb(220, 24, 24);
-  }
+}
 
-  @media (max-width: 576px) {
-    .wishlist-image-container {
-      width: 24%;
-    }
-  }
+
+/* Search bar dropdown menus */
+
+.dropdown-content-nav {
+  font-size: 3vmin;
+  margin-top: 2px;
+  position: absolute;
+  top: 7vmin;
+  right: 12vmin;
+  z-index: 9999;
+}
+
+.dropdown-content-home {
+  font-size: 3vmin;
+  position: absolute;
+  top: 62%;
+  left: 20%;
+  z-index: 9999;
+}
+
+.dropdown-content-nav > li, 
+.dropdown-content-home > li {
+  border: 1px solid white;
+}
+

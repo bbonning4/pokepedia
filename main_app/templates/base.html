@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Play&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script defer src="{% static 'script/script.js' %}"></script>
     <!--Let browser know website is optimized for mobile-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,9 +34,6 @@
             position: relative;
             display: inline-block;
         }
-        .dropdown-content.dark-mode {
-            background-color: var(--main-dark);
-        }
     </style>
   </head>
 
@@ -49,9 +47,9 @@
                 <ul class="right">
                     <li>
                         <div class="nav-wrapper" style="margin-top: 16px; height: 35px;">
-                            <form method="GET" action="{% url 'search' %}">
+                            <form method="GET" action="{% url 'search' %}" id="search-form-nav">
                                 <div class="input-field">
-                                  <input id="search-nav" type="search" name="pokemon_name" required>
+                                  <input id="search-nav" type="search" name="pokemon_name" autocomplete="off" required>
                                   <label class="label-icon" for="search"><i id="nav-icon" class="material-icons">search</i></label>
                                 </div>
                             </form>
@@ -86,6 +84,8 @@
             </div>
         </nav>
     </header>
+    <!--Dropdown for Search in Nav-->
+    <ul id="search-dropdown-nav" class="dropdown-content-nav right-align dark-mode white-text" style="cursor:pointer"></ul>
     <main class="container">
         {% block content %}
         {% endblock %}
