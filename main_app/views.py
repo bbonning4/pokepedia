@@ -118,8 +118,9 @@ def update_shiny(request):
     return redirect(request.META['HTTP_REFERER'])
 
 def find_products(request, name):
-    profile_id = Profile.objects.get(user_id=request.user.id).id
-    wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
+    if request.user.id:
+        profile_id = Profile.objects.get(user_id=request.user.id).id
+        wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
     images = []
     urls = []
     is_wishlist_items = []
@@ -139,13 +140,14 @@ def find_products(request, name):
             url_param = a_element.get('href')
             images.append(image)
             urls.append(f"https://www.google.com{url_param}")
-            for item in wishlist_items:
-                if image == item.image:
-                    is_wishlist_item = item.id
-                    is_wishlist_items.append(is_wishlist_item)
-            if not is_wishlist_item:
-                    is_wishlist_item = False
-                    is_wishlist_items.append(is_wishlist_item)
+            if request.user.id:
+                for item in wishlist_items:
+                    if image == item.image:
+                        is_wishlist_item = item.id
+                        is_wishlist_items.append(is_wishlist_item)
+                if not is_wishlist_item:
+                        is_wishlist_item = False
+                        is_wishlist_items.append(is_wishlist_item)
             product = {
                 'image': image,
                 'url': url,
@@ -160,7 +162,7 @@ def find_products(request, name):
         filtered_list_20 = filtered_list[:20]
 
     main_type = request.GET.get('main_type')
-    print(main_type)
+
     if request.user.id:
         profile = Profile.objects.get(user_id=request.user.id)
         context = {
@@ -180,8 +182,9 @@ def find_products(request, name):
 
 
 def find_more_products(request, name):
-    profile_id = Profile.objects.get(user_id=request.user.id).id
-    wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
+    if request.user.id:
+        profile_id = Profile.objects.get(user_id=request.user.id).id
+        wishlist_items = Wishlist.objects.filter(profile_id=profile_id)
     images = []
     urls = []
     is_wishlist_items = []
@@ -201,13 +204,14 @@ def find_more_products(request, name):
             url_param = a_element.get('href')
             images.append(image)
             urls.append(f"https://www.google.com{url_param}")
-            for item in wishlist_items:
-                if image == item.image:
-                    is_wishlist_item = item.id
-                    is_wishlist_items.append(is_wishlist_item)
-            if not is_wishlist_item:
-                    is_wishlist_item = False
-                    is_wishlist_items.append(is_wishlist_item)
+            if request.user.id:
+                for item in wishlist_items:
+                    if image == item.image:
+                        is_wishlist_item = item.id
+                        is_wishlist_items.append(is_wishlist_item)
+                if not is_wishlist_item:
+                        is_wishlist_item = False
+                        is_wishlist_items.append(is_wishlist_item)
             product = {
                 'image': image,
                 'url': url,
