@@ -9,12 +9,25 @@
 </div>
 </body>
 
+<style>
+    .dropdown-content-home {
+        font-size: 2vmin;
+        background-color: var(--main-dark);
+    }
+    .dropdown-content-home.dark-mode {
+        background-color: var(--main-dark);
+    }
+</style>
 
-<form method="GET" action="{% url 'search' %}">
-    <div class="input-field">
-      <input id="search" type="search" name="pokemon_name" required>
-      <label class="label-icon" for="search"><i id="home-search-icon" class="material-icons">search</i></label>
-    </div>
-</form> 
+<div class="home-search-bar">
+  <form method="GET" action="{% url 'search' %}" id="search-form-home">
+      <div class="input-field">
+        <input id="search-home" type="search" name="pokemon_name" autocomplete="off" required>
+        <label class="label-icon" for="search"><i id="home-search-icon" class="material-icons">search</i></label>
+      </div>
+  </form> 
+  <ul id="search-dropdown-home" class="dropdown-content-home dark-mode white-text" style="cursor: pointer">
+  </ul>
+</div>
 <!-- <p class="red-text">{{ error_msg }}</p> -->
 {% endblock %}
