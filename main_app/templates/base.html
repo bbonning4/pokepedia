@@ -34,9 +34,6 @@
             position: relative;
             display: inline-block;
         }
-        .dropdown-content.dark-mode {
-            background-color: var(--main-dark);
-        }
     </style>
   </head>
 
@@ -50,15 +47,12 @@
                 <ul class="right">
                     <li>
                         <div class="nav-wrapper" style="margin-top: 16px; height: 35px;">
-                            <form method="GET" action="{% url 'search' %}" id="search-form">
+                            <form method="GET" action="{% url 'search' %}" id="search-form-nav">
                                 <div class="input-field">
                                   <input id="search-nav" type="search" name="pokemon_name" autocomplete="off" required>
                                   <label class="label-icon" for="search"><i id="nav-icon" class="material-icons">search</i></label>
                                 </div>
                             </form>
-                            <ul id="search-dropdown" class="dropdown-content dark-mode">
-                                <li>Testing</li>
-                            </ul>
                         </div>
                     </li>
                     {% if user.is_authenticated %}
@@ -90,6 +84,8 @@
             </div>
         </nav>
     </header>
+    <!--Dropdown for Search in Nav-->
+    <ul id="search-dropdown-nav" class="dropdown-content-nav right-align dark-mode white-text" style="cursor:pointer"></ul>
     <main class="container">
         {% block content %}
         {% endblock %}

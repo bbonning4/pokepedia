@@ -1026,34 +1026,57 @@ inputField.addEventListener('input', function(e) {
     );
 
     dropdown.innerHTML = '';
-    matchedKeys.forEach(key => {
-        const dropdownItem = document.createElement('li');
-        dropdownItem.textContent = key;
-        dropdownItem.addEventListener('click', function() {
-            inputField.value = POKEMON[key];
-            form.submit();
-        });
-        dropdown.appendChild(dropdownItem);
-    })
-});
-
-homeInputField.addEventListener('input', function(e) {
-    const inputValue = e.target.value.toLowerCase();
-    console.log(inputValue);
-    const matchedKeys = Object.keys(POKEMON).filter(key =>
-        key.toLowerCase().includes(inputValue)
-    );
-
-    homeDropdown.innerHTML = '';
 
     for (let i = 0; i < matchedKeys.length && i < 10; i++) {
         const key = matchedKeys[i]
         const dropdownItem = document.createElement('li');
         dropdownItem.textContent = key;
+        // dropdownItem.classList.add('dropdown-item');
         dropdownItem.addEventListener('click', function() {
-            homeInputField.value = POKEMON[key];
-            homeForm.submit();
+            inputField.value = POKEMON[key];
+            form.submit();
         });
-        homeDropdown.appendChild(dropdownItem);
+        dropdown.appendChild(dropdownItem);
     }
 });
+
+if (homeInputField) {
+    homeInputField.addEventListener('input', function(e) {
+        const inputValue = e.target.value.toLowerCase();
+        console.log(inputValue);
+        const matchedKeys = Object.keys(POKEMON).filter(key =>
+            key.toLowerCase().includes(inputValue)
+        );
+    
+        homeDropdown.innerHTML = '';
+    
+        for (let i = 0; i < matchedKeys.length && i < 6; i++) {
+            const key = matchedKeys[i]
+            const dropdownItem = document.createElement('li');
+            dropdownItem.textContent = key;
+            // dropdownItem.classList.add('dropdown-item');
+            dropdownItem.addEventListener('click', function() {
+                homeInputField.value = POKEMON[key];
+                homeForm.submit();
+            });
+            homeDropdown.appendChild(dropdownItem);
+        }
+    });
+}
+
+// removes dropdown when clicking away
+document.addEventListener('click', function(e) {
+    const target = e.target;
+    if (target !== inputField && !dropdown.contains(target)) {
+        dropdown.innerHTML = '';
+    }
+});
+
+if (homeInputField) {
+    document.addEventListener('click', function(e) {
+        const target = e.target;
+        if (target !== homeInputField && !homeDropdown.contains(target)) {
+            homeDropdown.innerHTML = '';
+        }
+    });
+}
