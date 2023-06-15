@@ -7,6 +7,11 @@ Get started here -> https://pokepedia.herokuapp.com/
 <img width="1659" alt="Screenshot 2023-06-08 at 1 49 28 PM" src="https://github.com/bbonning4/pokepedia/assets/129787723/f6b0a144-cb33-4289-8511-af93e4fb9a36">
 <img width="1640" alt="Screenshot 2023-06-08 at 2 26 26 PM" src="https://github.com/bbonning4/pokepedia/assets/129787723/d97b8971-97ad-4bfe-ab4b-f6774ddc1f5c">
 
+## Contributors
+This was a group project consisting of:
+- Benjamin Burke | [GitHub](https://github.com/btb0) | [LinkedIn](https://www.linkedin.com/in/burkeben/)
+- Bo Bonning | [GitHub](https://github.com/bbonning4) | [LinkedIn](https://www.linkedin.com/in/bobonning/)
+- Phoebe Walquist | [GitHub](https://github.com/phoebewalquist) | [LinkedIn](https://www.linkedin.com/in/phoebe-walquist-ab2755273/)
 
 ## User Stories
 1. Search Memorabilia:
